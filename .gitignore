@@ -28,3 +28,8 @@ dist-ssr
 
 **/bin
 **/obj
+
+# Environment variables
+frontend/.env
+frontend/.env.development
+frontend/.env.production
