@@ -30,6 +30,6 @@ dist-ssr
 **/obj
 
 # Environment variables
-frontend/.env
-frontend/.env.development
-frontend/.env.production
+**/.env
+**/.env.development
+**/.env.production

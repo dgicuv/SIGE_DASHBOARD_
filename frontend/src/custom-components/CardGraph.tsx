@@ -38,6 +38,7 @@ type ChartMenuProps = {
   onModeChange: (mode: ChartMode) => void;
   onReset?: () => void;
   onDownload?: () => void;
+  onRefetch?: () => void;
 };
 
 export function ChartMenu({
@@ -46,6 +47,7 @@ export function ChartMenu({
   onModeChange,
   onReset,
   onDownload,
+  onRefetch,
 }: ChartMenuProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -88,6 +90,9 @@ export function ChartMenu({
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={onReset} className={"cursor-pointer"}>
               Restaurar vista
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onRefetch} className={"cursor-pointer"}>
+              Volver a obtener datos
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setConfirmOpen(true)}

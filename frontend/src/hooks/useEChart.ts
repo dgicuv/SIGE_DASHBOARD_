@@ -5,24 +5,29 @@ import type { EChartsOption } from "echarts";
 export function useEChart(option: EChartsOption) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
+  const handleResize = useRef(() => { chartRef.current?.resize(); });
 
+  // Cleanup on unmount
   useEffect(() => {
-    if (!containerRef.current) return;
-    const chart = echarts.init(containerRef.current);
-    chartRef.current = chart;
-
-    const handleResize = () => chart.resize();
-    window.addEventListener("resize", handleResize);
-
     return () => {
-      window.removeEventListener("resize", handleResize);
-      chart.dispose();
+      window.removeEventListener("resize", handleResize.current);
+      chartRef.current?.dispose();
       chartRef.current = null;
     };
   }, []);
 
+  // Init lazily (only when container has real dimensions) + apply option
   useEffect(() => {
-    chartRef.current?.setOption({ ...option, animation: false }, { notMerge: false });
+    const container = containerRef.current;
+    if (!container || !container.clientWidth) return;
+
+    if (!chartRef.current) {
+      chartRef.current = echarts.init(container);
+      window.addEventListener("resize", handleResize.current);
+    }
+
+    chartRef.current.setOption({ ...option, animation: false }, { notMerge: false });
+    chartRef.current.resize();
   }, [option]);
 
   function downloadImage(filename: string, exportExtra?: Partial<EChartsOption>) {

@@ -12,6 +12,7 @@ type UseBarLineChartParams = {
   values: readonly number[];
   colors?: string[];
   mode: "bar" | "line";
+  orientation?: "horizontal" | "vertical";
   valueFormat?: ValueFormat;
   grid?: { left?: number; right?: number; top?: number; bottom?: number };
 };
@@ -23,6 +24,7 @@ export function useBarLineChart({
   values,
   colors = [...chartConfig.colors],
   mode,
+  orientation = "horizontal",
   valueFormat = "number",
   grid = { left: 40, right: 40, top: 44, bottom: 44 },
 }: UseBarLineChartParams) {
@@ -31,6 +33,9 @@ export function useBarLineChart({
       const fmt = valueFormat === "currency"
         ? new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" })
         : new Intl.NumberFormat("es-MX");
+
+      const isVertical = orientation === "vertical";
+
       return {
         tooltip: {
           trigger: "axis",
@@ -41,22 +46,26 @@ export function useBarLineChart({
         },
         color: colors,
         grid,
-        yAxis: { type: "category", data: [...categories], axisLabel: { interval: 0 } },
-        xAxis: { type: "value" },
+        xAxis: isVertical
+          ? { type: "category", data: [...categories], axisLabel: { interval: 0, rotate: 30 } }
+          : { type: "value" },
+        yAxis: isVertical
+          ? { type: "value" }
+          : { type: "category", data: [...categories], axisLabel: { interval: 0 } },
         series: [
           {
             data: [...values],
             type: mode,
             label: {
               show: true,
-              position: "right",
+              position: isVertical ? "top" : "right",
               formatter: (params: { value: number }) => fmt.format(params.value),
             },
           },
         ],
       } as EChartsOption;
     },
-    [colors, categories, values, mode, grid, valueFormat],
+    [colors, categories, values, mode, orientation, grid, valueFormat],
   );
 
   const exportExtra: EChartsOption = {
