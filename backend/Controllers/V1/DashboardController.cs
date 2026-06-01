@@ -16,7 +16,7 @@ public class DashboardController : ControllerBase
         {
             title = "Entidades - Dependencias",
             description = "Número de entidades por región",
-            categories = new[] { "Coatzacoalcos/Minatitlán", "Orizaba/Córdoba", "Poza Rica/Túxpan", "Veracruz", "Xalapa" },
+            categories = new[] { "Coatzacoalcos / Minatitlán", "Orizaba / Córdoba", "Poza Rica / Túxpan", "Veracruz", "Xalapa" },
             values = new[] { 29, 27, 29, 41, 218 },
             type = "bar",
             dataType = "number",
@@ -35,7 +35,7 @@ public class DashboardController : ControllerBase
         {
             title = "Personal",
             description = "Fecha de corte 2025. Fuente de Información",
-            categories = new[] { "Académico", "Administrativo/Técnico", "Confianza", "Eventual", "Mandos medios y Superiores" },
+            categories = new[] { "Académico", "Administrativo / Técnico", "Confianza", "Eventual", "Mandos medios y Superiores" },
             values = new[] { 5950, 2558, 1763, 1108, 594 },
             type = "bar",
             dataType = "number",

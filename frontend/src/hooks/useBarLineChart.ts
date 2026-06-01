@@ -47,7 +47,7 @@ export function useBarLineChart({
         color: colors,
         grid,
         xAxis: isVertical
-          ? { type: "category", data: [...categories], axisLabel: { interval: 0, rotate: 30 } }
+          ? { type: "category", data: [...categories], axisLabel: { interval: 0, overflow: "break", width: 80 } }
           : { type: "value" },
         yAxis: isVertical
           ? { type: "value" }
