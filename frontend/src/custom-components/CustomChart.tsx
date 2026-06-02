@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Maximize2 } from "lucide-react";
-import { useQuery, type QueryKey } from "@tanstack/react-query";
+import { useQuery, type QueryFunctionContext, type QueryKey } from "@tanstack/react-query";
 import { useBarLineChart } from "@/hooks/useBarLineChart";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -29,7 +29,7 @@ export type ChartData = {
 
 export type CustomChartProps = {
   queryKey: QueryKey;
-  queryFn: () => Promise<ChartData>;
+  queryFn: (ctx: QueryFunctionContext) => Promise<ChartData>;
   orientation?: "horizontal" | "vertical";
   colors?: string[];
 };
@@ -143,7 +143,7 @@ export function CustomChart({ queryKey, queryFn, orientation, colors }: CustomCh
           </div>
         )}
 
-        {isError && (
+        {isError && !isFetching && (
           <div className="w-full h-80 flex flex-col items-center justify-center gap-3">
             <p className="text-sm text-muted-foreground">
               Hubo un problema al cargar la información
