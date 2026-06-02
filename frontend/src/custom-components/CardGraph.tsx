@@ -91,14 +91,17 @@ export function ChartMenu({
             <DropdownMenuItem onClick={onReset} className={"cursor-pointer"}>
               Restaurar vista
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onRefetch} className={"cursor-pointer"}>
-              Volver a obtener datos
-            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setConfirmOpen(true)}
               className={"cursor-pointer"}
             >
               Descargar imagen
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={onRefetch} className={"cursor-pointer"}>
+              Volver a obtener datos
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

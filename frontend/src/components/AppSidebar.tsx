@@ -3,16 +3,15 @@ import {
   Building2,
   ChevronUp,
   LayoutDashboard,
-  Settings,
   Users,
-} from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+} from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -25,23 +24,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const navMain = [
   { title: "Dashboard", icon: LayoutDashboard, key: "dashboard" },
   { title: "Entidades", icon: Building2, key: "entidades" },
   { title: "Personal", icon: Users, key: "personal" },
   { title: "Reportes", icon: BarChart2, key: "reportes" },
-]
-
-const navSecondary = [
-  { title: "Configuración", icon: Settings, key: "configuracion" },
-]
+];
 
 type Props = {
-  activeKey: string
-  onNavigate: (key: string) => void
-}
+  activeKey: string;
+  onNavigate: (key: string) => void;
+};
 
 export function AppSidebar({ activeKey, onNavigate }: Props) {
   return (
@@ -83,24 +78,6 @@ export function AppSidebar({ activeKey, onNavigate }: Props) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navSecondary.map((item) => (
-                <SidebarMenuItem key={item.key}>
-                  <SidebarMenuButton
-                    isActive={activeKey === item.key}
-                    onClick={() => onNavigate(item.key)}
-                    tooltip={item.title}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
@@ -109,10 +86,14 @@ export function AppSidebar({ activeKey, onNavigate }: Props) {
             <DropdownMenu>
               <DropdownMenuTrigger render={<SidebarMenuButton size="lg" />}>
                 <Avatar className="size-8 rounded-lg shrink-0">
-                  <AvatarFallback className="rounded-lg text-xs">RP</AvatarFallback>
+                  <AvatarFallback className="rounded-lg text-xs">
+                    RP
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col leading-none text-left overflow-hidden">
-                  <span className="truncate text-sm font-medium">Rulo Pimentel</span>
+                  <span className="truncate text-sm font-medium">
+                    Rulo Pimentel
+                  </span>
                   <span className="truncate text-xs text-muted-foreground">
                     rulo.pimentel@gmail.com
                   </span>
@@ -120,7 +101,6 @@ export function AppSidebar({ activeKey, onNavigate }: Props) {
                 <ChevronUp className="ml-auto" />
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" className="w-56">
-                <DropdownMenuItem>Perfil</DropdownMenuItem>
                 <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -130,5 +110,5 @@ export function AppSidebar({ activeKey, onNavigate }: Props) {
 
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
