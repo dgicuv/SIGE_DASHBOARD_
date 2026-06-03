@@ -96,6 +96,9 @@ const navMain: NavItem[] = [
   { title: "Programas Educativos", icon: BookOpen, key: "programas-educativos" },
   { title: "Matrícula Formal", icon: SquareUserRound, key: "matricula-formal" },
   { title: "Infraestructura", icon: Server, key: "infraestructura" },
+];
+
+const navBottom: NavItem[] = [
   { title: "Release Notes", icon: PencilLine, key: "release-notes" },
 ];
 
@@ -104,7 +107,7 @@ export default function App() {
 
   return (
     <SidebarProvider>
-      <AppSidebar activeKey={activePage} onNavigate={setActivePage} navMain={navMain} />
+      <AppSidebar activeKey={activePage} onNavigate={setActivePage} navMain={navMain} navBottom={navBottom} />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger className="-ml-1" />
@@ -113,7 +116,7 @@ export default function App() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbPage>
-                  {navMain.find((i) => i.key === activePage)?.title ?? activePage}
+                  {[...navMain, ...navBottom].find((i) => i.key === activePage)?.title ?? activePage}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>

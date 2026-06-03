@@ -19,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 
 export type NavItem = {
@@ -31,9 +32,15 @@ type Props = {
   activeKey: string;
   onNavigate: (key: string) => void;
   navMain: NavItem[];
+  navBottom?: NavItem[];
 };
 
-export function AppSidebar({ activeKey, onNavigate, navMain }: Props) {
+export function AppSidebar({
+  activeKey,
+  onNavigate,
+  navMain,
+  navBottom,
+}: Props) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -41,7 +48,7 @@ export function AppSidebar({ activeKey, onNavigate, navMain }: Props) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="cursor-default">
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
-                UV
+                 UV
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-heading font-semibold text-sm">SIGE</span>
@@ -60,6 +67,7 @@ export function AppSidebar({ activeKey, onNavigate, navMain }: Props) {
               {navMain.map((item) => (
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
+                    className="cursor-pointer"
                     isActive={activeKey === item.key}
                     onClick={() => onNavigate(item.key)}
                     tooltip={item.title}
@@ -72,6 +80,31 @@ export function AppSidebar({ activeKey, onNavigate, navMain }: Props) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {navBottom && navBottom.length > 0 && (
+          <>
+            <SidebarSeparator />
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {navBottom.map((item) => (
+                    <SidebarMenuItem key={item.key}>
+                      <SidebarMenuButton
+                        isActive={activeKey === item.key}
+                        onClick={() => onNavigate(item.key)}
+                        tooltip={item.title}
+                        className="cursor-pointer"
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
 
       <SidebarFooter>
