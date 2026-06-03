@@ -1,10 +1,5 @@
-import {
-  BarChart2,
-  Building2,
-  ChevronUp,
-  LayoutDashboard,
-  Users,
-} from "lucide-react";
+import type { ComponentType } from "react";
+import { ChevronUp } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -26,19 +21,19 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-const navMain = [
-  { title: "Dashboard", icon: LayoutDashboard, key: "dashboard" },
-  { title: "Entidades", icon: Building2, key: "entidades" },
-  { title: "Personal", icon: Users, key: "personal" },
-  { title: "Reportes", icon: BarChart2, key: "reportes" },
-];
+export type NavItem = {
+  title: string;
+  icon: ComponentType;
+  key: string;
+};
 
 type Props = {
   activeKey: string;
   onNavigate: (key: string) => void;
+  navMain: NavItem[];
 };
 
-export function AppSidebar({ activeKey, onNavigate }: Props) {
+export function AppSidebar({ activeKey, onNavigate, navMain }: Props) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -46,11 +41,11 @@ export function AppSidebar({ activeKey, onNavigate }: Props) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="cursor-default">
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
-                UV
+                UV
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-heading font-semibold text-sm">SIGE</span>
-                <span className="text-xs text-muted-foreground">Dashboard</span>
+                <span className="text-xs text-muted-foreground">Gerencial</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -77,7 +72,6 @@ export function AppSidebar({ activeKey, onNavigate }: Props) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
       </SidebarContent>
 
       <SidebarFooter>
@@ -95,7 +89,7 @@ export function AppSidebar({ activeKey, onNavigate }: Props) {
                     Rulo Pimentel
                   </span>
                   <span className="truncate text-xs text-muted-foreground">
-                    rulo.pimentel@gmail.com
+                    rulopimentel@gmail.com
                   </span>
                 </div>
                 <ChevronUp className="ml-auto" />

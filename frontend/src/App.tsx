@@ -1,41 +1,38 @@
-import { useState } from "react"
-import { useTheme } from "next-themes"
-import { Moon, Sun } from "lucide-react"
-import { AppSidebar } from "@/components/AppSidebar"
-import { CustomChart } from "@custom/CustomChart"
-import type { ChartData } from "@custom/CustomChart"
-import type { QueryFunctionContext } from "@tanstack/react-query"
+import { useState } from "react";
+import { useTheme } from "next-themes";
+import { BookOpen, Building2, ContactRound, LayoutDashboard, Moon, PencilLine, Server, SquareUserRound, Sun } from "lucide-react";
+import { AppSidebar, type NavItem } from "@/components/AppSidebar";
+import { CustomChart } from "@custom/CustomChart";
+import type { ChartData } from "@custom/CustomChart";
+import type { QueryFunctionContext } from "@tanstack/react-query";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-async function fetchEntidades({ signal }: QueryFunctionContext): Promise<ChartData> {
-  const res = await fetch(`${API_BASE}/api/v1/dashboard/entidades`, { signal })
-  return res.json()
+async function fetchEntidades({
+  signal,
+}: QueryFunctionContext): Promise<ChartData> {
+  const res = await fetch(`${API_BASE}/api/v1/dashboard/entidades`, { signal });
+  return res.json();
 }
 
-async function fetchPersonal({ signal }: QueryFunctionContext): Promise<ChartData> {
-  const res = await fetch(`${API_BASE}/api/v1/dashboard/personal`, { signal })
-  return res.json()
-}
-
-const PAGE_LABELS: Record<string, string> = {
-  dashboard: "Dashboard",
-  entidades: "Entidades",
-  personal: "Personal",
-  reportes: "Reportes",
+async function fetchPersonal({
+  signal,
+}: QueryFunctionContext): Promise<ChartData> {
+  const res = await fetch(`${API_BASE}/api/v1/dashboard/personal`, { signal });
+  return res.json();
 }
 
 function DashboardContent() {
@@ -56,7 +53,7 @@ function DashboardContent() {
           orientation="vertical"
         />
       </div>
- 
+
       <div className="w-full lg:w-1/2 xl:w-1/2 p-1 min-w-0">
         <CustomChart
           queryKey={["dashboard", "personal"]}
@@ -66,19 +63,19 @@ function DashboardContent() {
         />
       </div>
     </div>
-  )
+  );
 }
 
 function PlaceholderContent({ page }: { page: string }) {
   return (
     <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
-      Contenido de {PAGE_LABELS[page] ?? page} (próximamente)
+      Contenido de {page} (próximamente)
     </div>
-  )
+  );
 }
 
 function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme();
   return (
     <Button
       variant="ghost"
@@ -89,15 +86,25 @@ function ThemeToggle() {
       <Sun className="dark:hidden" />
       <Moon className="hidden dark:block" />
     </Button>
-  )
+  );
 }
 
+const navMain: NavItem[] = [
+  { title: "General", icon: LayoutDashboard, key: "general" },
+  { title: "Entidades / Dependencias", icon: Building2, key: "entidades-dependencias" },
+  { title: "Personal", icon: ContactRound, key: "personal" },
+  { title: "Programas Educativos", icon: BookOpen, key: "programas-educativos" },
+  { title: "Matrícula Formal", icon: SquareUserRound, key: "matricula-formal" },
+  { title: "Infraestructura", icon: Server, key: "infraestructura" },
+  { title: "Release Notes", icon: PencilLine, key: "release-notes" },
+];
+
 export default function App() {
-  const [activePage, setActivePage] = useState("dashboard")
+  const [activePage, setActivePage] = useState("general");
 
   return (
     <SidebarProvider>
-      <AppSidebar activeKey={activePage} onNavigate={setActivePage} />
+      <AppSidebar activeKey={activePage} onNavigate={setActivePage} navMain={navMain} />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger className="-ml-1" />
@@ -105,7 +112,9 @@ export default function App() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbPage>{PAGE_LABELS[activePage] ?? activePage}</BreadcrumbPage>
+                <BreadcrumbPage>
+                  {navMain.find((i) => i.key === activePage)?.title ?? activePage}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -115,7 +124,7 @@ export default function App() {
         </header>
 
         <div className="flex flex-1 flex-col bg-background min-h-0">
-          {activePage === "dashboard" ? (
+          {activePage === "general" ? (
             <DashboardContent />
           ) : (
             <PlaceholderContent page={activePage} />
@@ -123,5 +132,5 @@ export default function App() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
