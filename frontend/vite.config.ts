@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@custom": path.resolve(__dirname, "./src/custom-components"),
+      "echarts": path.resolve(__dirname, "./src/lib/echarts-loader.js"),
     },
   },
 });

@@ -42,6 +42,7 @@ export function useBarLineChart({
       const axisLabelStyle = { color: labelColor };
 
       return {
+        aria: mode === "bar" ? { enabled: true, decal: { show: true } } : undefined,
         tooltip: {
           trigger: "axis",
           formatter: (params: unknown) => {
@@ -74,14 +75,18 @@ export function useBarLineChart({
     [colors, categories, values, mode, orientation, grid, valueFormat, labelColor],
   );
 
+  const exportLabelColor = "#374151";
   const exportExtra: EChartsOption = {
     title: { text: title, left: 0, top: 0, textStyle: { fontSize: 20 } },
     graphic: {
       type: "text",
       left: 0,
       bottom: 0,
-      style: { text: footer, fontSize: 13, fill: "#9ca3af" },
+      style: { text: footer, fontSize: 13, fill: "#6b7280" },
     },
+    xAxis: { axisLabel: { color: exportLabelColor } },
+    yAxis: { axisLabel: { color: exportLabelColor } },
+    series: [{ label: { color: exportLabelColor } }],
   };
 
   const { containerRef, downloadImage } = useEChart(option);

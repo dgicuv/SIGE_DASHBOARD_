@@ -150,7 +150,7 @@ export function CardGraph({ title, footer, action, children }: CardGraphProps) {
   return (
     <Card size="default" className="">
       <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardTitle className="">{title}</CardTitle>
         {action && <CardAction>{action}</CardAction>}
       </CardHeader>
       <CardContent>{children}</CardContent>
