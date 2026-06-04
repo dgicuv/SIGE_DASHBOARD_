@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { ChevronUp } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -29,18 +30,18 @@ export type NavItem = {
 };
 
 type Props = {
-  activeKey: string;
-  onNavigate: (key: string) => void;
   navMain: NavItem[];
   navBottom?: NavItem[];
 };
 
-export function AppSidebar({
-  activeKey,
-  onNavigate,
-  navMain,
-  navBottom,
-}: Props) {
+function itemPath(key: string) {
+  return key === "general" ? "/" : `/${key}`;
+}
+
+export function AppSidebar({ navMain, navBottom }: Props) {
+  const location = useLocation();
+  const currentKey = location.pathname === "/" ? "general" : location.pathname.slice(1);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -48,7 +49,7 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="cursor-default">
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
-                 UV
+                 UV
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-heading font-semibold text-sm">SIGE</span>
@@ -67,9 +68,8 @@ export function AppSidebar({
               {navMain.map((item) => (
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
-                    className="cursor-pointer"
-                    isActive={activeKey === item.key}
-                    onClick={() => onNavigate(item.key)}
+                    render={<Link to={itemPath(item.key)} />}
+                    isActive={currentKey === item.key}
                     tooltip={item.title}
                   >
                     <item.icon />
@@ -90,10 +90,9 @@ export function AppSidebar({
                   {navBottom.map((item) => (
                     <SidebarMenuItem key={item.key}>
                       <SidebarMenuButton
-                        isActive={activeKey === item.key}
-                        onClick={() => onNavigate(item.key)}
+                        render={<Link to={itemPath(item.key)} />}
+                        isActive={currentKey === item.key}
                         tooltip={item.title}
-                        className="cursor-pointer"
                       >
                         <item.icon />
                         <span>{item.title}</span>
@@ -128,7 +127,9 @@ export function AppSidebar({
                 <ChevronUp className="ml-auto" />
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" className="w-56">
-                <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
+                <DropdownMenuItem render={<Link to="/logout" />}>
+                  Cerrar sesión
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

@@ -8,7 +8,7 @@ namespace SIGE.Dashboard;
 [Authorize(Roles = "entidades-dependencias")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class DashboardController : ControllerBase
+public class EntidadesDependenciasController : ControllerBase
 {
     [HttpGet("Entidades")]
     public async Task<IActionResult> GetEntidades()
