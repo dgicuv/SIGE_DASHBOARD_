@@ -1,5 +1,7 @@
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,8 +15,13 @@ namespace SIGE.Dashboard;
 public class AuthController : ControllerBase
 {
     private readonly IConfiguration _config;
+    private readonly IWebHostEnvironment _env;
 
-    public AuthController(IConfiguration config) => _config = config;
+    public AuthController(IConfiguration config, IWebHostEnvironment env)
+    {
+        _config = config;
+        _env = env;
+    }
 
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
@@ -24,6 +31,7 @@ public class AuthController : ControllerBase
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var expiresInMinutes = _config.GetValue<int>("Jwt:ExpiresInMinutes");
 
         List<Claim> claims =
         [
@@ -40,12 +48,32 @@ public class AuthController : ControllerBase
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_config.GetValue<int>("Jwt:ExpiresInMinutes")),
+            expires: DateTime.UtcNow.AddMinutes(expiresInMinutes),
             signingCredentials: creds
         );
 
-        return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+        Response.Cookies.Append("token", new JwtSecurityTokenHandler().WriteToken(token), new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = !_env.IsDevelopment(),
+            Expires = DateTimeOffset.UtcNow.AddMinutes(expiresInMinutes),
+            Path = "/"
+        });
+
+        return Ok(new { username = request.Username });
     }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("token", new CookieOptions { Path = "/" });
+        return Ok();
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me() => Ok(new { username = User.Identity?.Name });
 }
 
 public record LoginRequest(string Username, string Password);

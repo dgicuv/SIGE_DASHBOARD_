@@ -13,4 +13,12 @@ export default defineConfig({
       "echarts": path.resolve(__dirname, "./src/lib/echarts-loader.js"),
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:5032",
+        changeOrigin: true,
+      },
+    },
+  },
 });
