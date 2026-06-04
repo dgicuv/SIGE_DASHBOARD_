@@ -25,10 +25,21 @@ public class AuthController : ControllerBase
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        List<Claim> claims =
+        [
+            new(ClaimTypes.Name, request.Username),
+            new(ClaimTypes.Role, "general"),
+            new(ClaimTypes.Role, "entidades-dependencias"),
+            new(ClaimTypes.Role, "personal"),
+            new(ClaimTypes.Role, "programas-educativos"),
+            new(ClaimTypes.Role, "matricula-formal"),
+            new(ClaimTypes.Role, "infraestructura"),
+        ];
+
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
-            claims: [new Claim(ClaimTypes.Name, request.Username)],
+            claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: creds
         );
