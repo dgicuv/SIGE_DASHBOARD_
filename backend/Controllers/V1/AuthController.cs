@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
             new(ClaimTypes.Name, request.Username),
             new(ClaimTypes.Role, "general"),
             new(ClaimTypes.Role, "entidades-dependencias"),
-            new(ClaimTypes.Role, "personal"),
+            // new(ClaimTypes.Role, "personal"),
             new(ClaimTypes.Role, "programas-educativos"),
             new(ClaimTypes.Role, "matricula-formal"),
             new(ClaimTypes.Role, "infraestructura"),

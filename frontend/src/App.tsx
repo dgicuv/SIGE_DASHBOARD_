@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { BookOpen, Building2, ContactRound, LayoutDashboard, Moon, PencilLine, Server, SquareUserRound, Sun } from "lucide-react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { MemoryRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar, type NavItem } from "@/components/AppSidebar";
 import { LoginForm } from "@/components/LoginForm";
-import { CustomChart } from "@custom/CustomChart";
-import type { ChartData } from "@custom/CustomChart";
 import { useAuth } from "@/contexts/auth";
 import {
   SidebarInset,
@@ -21,51 +19,13 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
-async function apiFetch(url: string, signal?: AbortSignal): Promise<ChartData> {
-  const res = await fetch(url, { signal });
-  if (res.status === 401) throw new Error("No autorizado");
-  return res.json();
-}
-
-function DashboardContent() {
-  return (
-    <div className="flex flex-wrap content-start gap-0 p-2">
-      <div className="w-full lg:w-1/2 xl:w-1/2 p-1 min-w-0">
-        <CustomChart
-          queryKey={["dashboard", "entidades"]}
-          queryFn={({ signal }) => apiFetch(`${API_BASE}/api/v1/entidadesdependencias/entidades`, signal)}
-          colors={["#70AB6D"]}
-        />
-      </div>
-      <div className="w-full lg:w-1/2 xl:w-1/2 p-1 min-w-0">
-        <CustomChart
-          queryKey={["dashboard", "personal"]}
-          queryFn={({ signal }) => apiFetch(`${API_BASE}/api/v1/entidadesdependencias/personal`, signal)}
-          colors={["#C8796F"]}
-          orientation="vertical"
-        />
-      </div>
-      <div className="w-full lg:w-1/2 xl:w-1/2 p-1 min-w-0">
-        <CustomChart
-          queryKey={["dashboard", "personal2"]}
-          queryFn={({ signal }) => apiFetch(`${API_BASE}/api/v1/entidadesdependencias/personal`, signal)}
-          colors={["#C8796F"]}
-          orientation="vertical"
-        />
-      </div>
-    </div>
-  );
-}
-
-function PlaceholderContent({ page }: { page: string }) {
-  return (
-    <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
-      Contenido de {page} (próximamente)
-    </div>
-  );
-}
+const GeneralPage              = lazy(() => import("@/pages/GeneralPage"));
+const EntidadesDependenciasPage = lazy(() => import("@/pages/EntidadesDependenciasPage"));
+const PersonalPage             = lazy(() => import("@/pages/PersonalPage"));
+const ProgramasEducativosPage  = lazy(() => import("@/pages/ProgramasEducativosPage"));
+const MatriculaFormalPage      = lazy(() => import("@/pages/MatriculaFormalPage"));
+const InfraestructuraPage      = lazy(() => import("@/pages/InfraestructuraPage"));
+const ReleaseNotesPage         = lazy(() => import("@/pages/ReleaseNotesPage"));
 
 function NotFound() {
   return (
@@ -175,7 +135,9 @@ function Layout() {
           </div>
         </header>
         <div className="flex flex-1 flex-col bg-background min-h-0">
-          <Outlet />
+          <Suspense>
+            <Outlet />
+          </Suspense>
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -184,23 +146,23 @@ function Layout() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <MemoryRouter>
       <Routes>
         <Route path="login" element={<LoginPage />} />
         <Route element={<AuthGuard />}>
           <Route element={<Layout />}>
-            <Route index element={<DashboardContent />} />
-            <Route path="entidades-dependencias" element={<PlaceholderContent page="Entidades / Dependencias" />} />
-            <Route path="personal" element={<PlaceholderContent page="Personal" />} />
-            <Route path="programas-educativos" element={<PlaceholderContent page="Programas Educativos" />} />
-            <Route path="matricula-formal" element={<PlaceholderContent page="Matrícula Formal" />} />
-            <Route path="infraestructura" element={<PlaceholderContent page="Infraestructura" />} />
-            <Route path="release-notes" element={<PlaceholderContent page="Release Notes" />} />
+            <Route index element={<GeneralPage />} />
+            <Route path="entidades-dependencias" element={<EntidadesDependenciasPage />} />
+            <Route path="personal" element={<PersonalPage />} />
+            <Route path="programas-educativos" element={<ProgramasEducativosPage />} />
+            <Route path="matricula-formal" element={<MatriculaFormalPage />} />
+            <Route path="infraestructura" element={<InfraestructuraPage />} />
+            <Route path="release-notes" element={<ReleaseNotesPage />} />
             <Route path="logout" element={<LogoutRoute />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Route>
       </Routes>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 }
