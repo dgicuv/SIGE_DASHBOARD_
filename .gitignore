@@ -32,4 +32,10 @@ dist-ssr
 # Environment variables
 **/.env
 **/.env.development
+**/.env.staging
 **/.env.production
+
+# Backend environment-specific settings (contain secrets)
+**/appsettings.Development.json
+**/appsettings.Staging.json
+**/appsettings.Production.json
