@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+import { apiFetch } from "@/lib/api";
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -18,7 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/auth/me`)
+    apiFetch("/api/v1/auth/me")
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json();
@@ -35,19 +34,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function login(username: string, password: string) {
-    const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+    const res = await apiFetch("/api/v1/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
-    if (!res.ok) throw new Error("Credenciales inválidas");
+    if (!res.ok) throw new Error("Credenciales no válidas");
     const data = await res.json();
     setIsAuthenticated(true);
     setUsername(data.username);
   }
 
   async function logout() {
-    await fetch(`${API_BASE}/api/v1/auth/logout`, { method: "POST" });
+    await apiFetch("/api/v1/auth/logout", { method: "POST" });
     setIsAuthenticated(false);
     setUsername(null);
   }

@@ -1,7 +1,6 @@
 import { CustomChart } from "@custom/CustomChart";
 import { useAuth } from "@/contexts/auth";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+import { apiFetch } from "@/lib/api";
 
 export default function GeneralPage() {
   const { isAuthenticated } = useAuth();
@@ -13,7 +12,7 @@ export default function GeneralPage() {
         <CustomChart
           queryKey={["dashboard", "entidades"]}
           queryFn={({ signal }) =>
-            fetch(`${API_BASE}/api/v1/entidadesdependencias/entidades`, { signal }).then((r) => r.json())
+            apiFetch("/api/v1/entidadesdependencias/entidades", { signal }).then((r) => r.json())
           }
           colors={["#70AB6D"]}
         />
@@ -22,7 +21,7 @@ export default function GeneralPage() {
         <CustomChart
           queryKey={["dashboard", "personal"]}
           queryFn={({ signal }) =>
-            fetch(`${API_BASE}/api/v1/entidadesdependencias/personal`, { signal }).then((r) => r.json())
+            apiFetch("/api/v1/entidadesdependencias/personal", { signal }).then((r) => r.json())
           }
           colors={["#C8796F"]}
           orientation="vertical"
@@ -32,7 +31,7 @@ export default function GeneralPage() {
         <CustomChart
           queryKey={["dashboard", "personal2"]}
           queryFn={({ signal }) =>
-            fetch(`${API_BASE}/api/v1/entidadesdependencias/personal`, { signal }).then((r) => r.json())
+            apiFetch("/api/v1/entidadesdependencias/personal", { signal }).then((r) => r.json())
           }
           colors={["#C8796F"]}
           orientation="vertical"

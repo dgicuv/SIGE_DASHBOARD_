@@ -180,7 +180,7 @@ export function CustomChart({ queryKey, queryFn, orientation, colors }: CustomCh
           <DialogHeader>
             <DialogTitle className="text-lg">{title}</DialogTitle>
           </DialogHeader>
-          <div className="flex-1 min-h-0 overflow-auto">
+          <div className="flex-1 min-h-0 overflow-auto p-8">
             <ModalChart
               title={title}
               footer={footer}
@@ -190,7 +190,7 @@ export function CustomChart({ queryKey, queryFn, orientation, colors }: CustomCh
               valueFormat={data?.dataType}
               orientation={orientation}
               mode={mode}
-              grid={{ left: 80, right: 80, top: 64, bottom: 64 }}
+              grid={{ left: 0, right: 0, top: 0, bottom: 0 }}
             />
           </div>
           <p className="text-xs text-gray-400">{footer}</p>

@@ -10,6 +10,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
+      richColors
       className="toaster group"
       icons={{
         success: (
@@ -33,6 +34,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-bg": "var(--popover)",
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
+          "--error-bg": "color-mix(in oklch, var(--destructive) 12%, var(--background))",
+          "--error-text": "color-mix(in oklch, var(--destructive) 80%, var(--foreground))",
+          "--error-border": "color-mix(in oklch, var(--destructive) 40%, transparent)",
           "--border-radius": "var(--radius)",
         } as React.CSSProperties
       }

@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { BookOpen, Building2, ContactRound, LayoutDashboard, Moon, PencilLine, Server, SquareUserRound, Sun } from "lucide-react";
 import { MemoryRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
@@ -10,7 +11,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -67,30 +67,31 @@ function LogoutRoute() {
 
 function LoginPage() {
   const { isAuthenticated, loading, login } = useAuth();
+  const { setTheme, resolvedTheme } = useTheme();
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const previous = resolvedTheme;
+    setTheme("light");
+    return () => { if (previous) setTheme(previous); };
+  }, []);
 
   if (loading) return null;
   if (isAuthenticated) return <Navigate to="/" replace />;
 
-  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-    const form = e.currentTarget;
-    const username = (form.elements.namedItem("username") as HTMLInputElement).value;
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+  async function handleSubmit({ username, password }: { username: string; password: string }) {
     try {
       await login(username, password);
       navigate("/", { replace: true });
     } catch {
-      setError("Credenciales inválidas");
+      toast.error("Usuario o contraseña incorrectos");
     }
   }
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-background p-6">
-      <div className="w-full max-w-sm">
-        <LoginForm onSubmit={handleSubmit} error={error} />
+      <div className="w-full max-w-2xl">
+        <LoginForm onSubmit={handleSubmit} />
       </div>
     </div>
   );
@@ -122,7 +123,6 @@ function Layout() {
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-full" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>

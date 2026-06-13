@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:development": "vite --mode development",
+    "dev:staging": "vite --mode staging",
+    "dev:production": "vite --mode production",
     "build": "tsc -b && vite build",
+    "build:development": "tsc -b && vite build --mode development",
+    "build:staging": "tsc -b && vite build --mode staging",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -28,6 +33,7 @@
     "react": "^19.2.6",
     "react-day-picker": "^10.0.1",
     "react-dom": "^19.2.6",
+    "react-hook-form": "^7.79.0",
     "react-resizable-panels": "^4.11.2",
     "react-router-dom": "^7.16.0",
     "recharts": "^3.8.1",
