@@ -1,11 +1,25 @@
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SIGE.Dashboard;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Repositories
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddScoped<IRegionesRepository, FakeRegionesRepository>();
+else
+    builder.Services.AddScoped<IRegionesRepository, RegionesRepository>();
+
+// Handlers
+builder.Services.AddScoped<GetActiveRegionesHandler>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

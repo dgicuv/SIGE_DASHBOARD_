@@ -8,6 +8,7 @@ import { MemoryRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate
 import { AppSidebar, type NavItem } from "@/components/AppSidebar";
 import { LoginForm } from "@/components/LoginForm";
 import { useAuth } from "@/contexts/auth";
+import { useAppData } from "@/contexts/appData";
 import {
     SidebarInset,
     SidebarProvider,
@@ -55,10 +56,37 @@ function ThemeToggle() {
     );
 }
 
+function AppDataLoading() {
+    return (
+        <div className="flex min-h-svh flex-col items-center justify-center gap-3 bg-background">
+            <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-foreground" />
+            <p className="text-sm text-muted-foreground">Cargando información del sistema…</p>
+        </div>
+    );
+}
+
+function AppDataError({ onRetry }: { onRetry: () => void }) {
+    return (
+        <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-background">
+            <p className="text-sm text-muted-foreground">
+                No se pudo cargar la información necesaria para el sistema.
+            </p>
+            <Button variant="outline" onClick={onRetry}>
+                Intentar nuevamente
+            </Button>
+        </div>
+    );
+}
+
 function AuthGuard() {
     const { isAuthenticated, loading } = useAuth();
+    const { status, retry } = useAppData();
+
     if (loading) return null;
-    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
+    if (status === "loading" || status === "idle") return <AppDataLoading />;
+    if (status === "error") return <AppDataError onRetry={retry} />;
+    return <Outlet />;
 }
 
 function RoleGuard({ role }: { role: string }) {
