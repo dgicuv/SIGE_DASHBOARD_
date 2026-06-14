@@ -41,6 +41,7 @@ public class AuthController : ControllerBase
             new(ClaimTypes.Role, "personal"),
             new(ClaimTypes.Role, "programas-educativos"),
             new(ClaimTypes.Role, "matricula-formal"),
+            new(ClaimTypes.Role, "matricula-formal-admin"),
             new(ClaimTypes.Role, "infraestructura"),
         ];
 
