@@ -17,16 +17,22 @@ if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddScoped<IRegionesRepository, FakeRegionesRepository>();
     builder.Services.AddScoped<IDependenciasRepository, FakeDependenciasRepository>();
+    builder.Services.AddScoped<IProgramasEducativosRepository, FakeProgramasEducativosRepository>();
+    builder.Services.AddScoped<IMatriculaRepository, FakeMatriculaRepository>();
 }
 else
 {
     builder.Services.AddScoped<IRegionesRepository, RegionesRepository>();
     builder.Services.AddScoped<IDependenciasRepository, DependenciasRepository>();
+    builder.Services.AddScoped<IProgramasEducativosRepository, ProgramasEducativosRepository>();
+    builder.Services.AddScoped<IMatriculaRepository, MatriculaRepository>();
 }
 
 // Handlers
 builder.Services.AddScoped<GetActiveRegionesHandler>();
 builder.Services.AddScoped<GetActiveDependenciasHandler>();
+builder.Services.AddScoped<GetActiveProgramasEducativosHandler>();
+builder.Services.AddScoped<GetAllMatriculaHandler>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
