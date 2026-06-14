@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/contexts/auth";
-
-export type Region = { id: number; name: string };
+import type { Dependencia, Region } from "@/types/api";
 
 type AppDataStatus = "idle" | "loading" | "ready" | "error";
 
 type AppDataContextType = {
   status: AppDataStatus;
   regiones: Region[];
+  dependencias: Dependencia[];
   retry: () => void;
 };
 
@@ -18,6 +18,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<AppDataStatus>("idle");
   const [regiones, setRegiones] = useState<Region[]>([]);
+  const [dependencias, setDependencias] = useState<Dependencia[]>([]);
   const [loadKey, setLoadKey] = useState(0);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     if (!isAuthenticated) {
       setStatus("idle");
       setRegiones([]);
+      setDependencias([]);
       return;
     }
 
@@ -33,18 +35,23 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     async function load() {
       setStatus("loading");
       try {
-        const [regionesRes] = await Promise.all([
+        const [regionesRes, dependenciasRes] = await Promise.all([
           apiFetch("/api/v1/regiones"),
-          // añadir las otras dos consultas aquí
+          apiFetch("/api/v1/dependencias"),
+          // añadir la tercera consulta aquí
         ]);
 
         if (cancelled) return;
-        if (!regionesRes.ok) throw new Error();
+        if (!regionesRes.ok || !dependenciasRes.ok) throw new Error();
 
-        const regionesData: Region[] = await regionesRes.json();
+        const [regionesData, dependenciasData]: [Region[], Dependencia[]] = await Promise.all([
+          regionesRes.json(),
+          dependenciasRes.json(),
+        ]);
         if (cancelled) return;
 
         setRegiones(regionesData);
+        setDependencias(dependenciasData);
         setStatus("ready");
       } catch {
         if (!cancelled) setStatus("error");
@@ -60,7 +67,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AppDataContext.Provider value={{ status, regiones, retry }}>
+    <AppDataContext.Provider value={{ status, regiones, dependencias, retry }}>
       {children}
     </AppDataContext.Provider>
   );

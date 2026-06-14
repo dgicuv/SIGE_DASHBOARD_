@@ -4,7 +4,7 @@ import { appConfig } from "@/config/appConfig";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { BookOpen, Building2, ContactRound, LayoutDashboard, Moon, PencilLine, Server, SquareUserRound, Sun, Upload } from "lucide-react";
-import { MemoryRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AppSidebar, type NavItem } from "@/components/AppSidebar";
 import { LoginForm } from "@/components/LoginForm";
 import { useAuth } from "@/contexts/auth";
@@ -213,7 +213,7 @@ function Layout() {
 
 export default function App() {
     return (
-        <MemoryRouter>
+        <BrowserRouter>
             <Routes>
                 <Route path="login" element={<LoginPage />} />
                 <Route element={<AuthGuard />}>
@@ -243,6 +243,6 @@ export default function App() {
                     </Route>
                 </Route>
             </Routes>
-        </MemoryRouter>
+        </BrowserRouter>
     );
 }
