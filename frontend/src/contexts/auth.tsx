@@ -4,6 +4,7 @@ import { apiFetch } from "@/lib/api";
 type AuthContextType = {
   isAuthenticated: boolean;
   username: string | null;
+  roles: string[];
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -14,6 +15,7 @@ const AuthContext = createContext<AuthContextType>(null!);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,10 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then((data) => {
         setIsAuthenticated(true);
         setUsername(data.username);
+        setRoles(data.roles ?? []);
       })
       .catch(() => {
         setIsAuthenticated(false);
         setUsername(null);
+        setRoles([]);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -43,16 +47,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await res.json();
     setIsAuthenticated(true);
     setUsername(data.username);
+    setRoles(data.roles ?? []);
   }
 
   async function logout() {
     await apiFetch("/api/v1/auth/logout", { method: "POST" });
     setIsAuthenticated(false);
     setUsername(null);
+    setRoles([]);
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, username, loading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, username, roles, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

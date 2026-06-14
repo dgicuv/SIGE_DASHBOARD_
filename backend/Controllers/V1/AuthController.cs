@@ -27,7 +27,7 @@ public class AuthController : ControllerBase
     public IActionResult Login([FromBody] LoginRequest request)
     {
         if (request.Username != "net" || request.Password != "fortune")
-            return Unauthorized(new { message = "Credenciales inválidas." });
+            return Unauthorized();
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
             new(ClaimTypes.Name, request.Username),
             new(ClaimTypes.Role, "general"),
             new(ClaimTypes.Role, "entidades-dependencias"),
-            // new(ClaimTypes.Role, "personal"),
+            new(ClaimTypes.Role, "personal"),
             new(ClaimTypes.Role, "programas-educativos"),
             new(ClaimTypes.Role, "matricula-formal"),
             new(ClaimTypes.Role, "infraestructura"),
@@ -61,7 +61,12 @@ public class AuthController : ControllerBase
             Path = "/"
         });
 
-        return Ok(new { username = request.Username });
+        var roles = claims
+            .Where(c => c.Type == ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+
+        return Ok(new { username = request.Username, roles });
     }
 
     [HttpPost("logout")]
@@ -73,7 +78,15 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public IActionResult Me() => Ok(new { username = User.Identity?.Name });
+    public IActionResult Me()
+    {
+        var roles = User.Claims
+            .Where(c => c.Type == ClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+
+        return Ok(new { username = User.Identity?.Name, roles });
+    }
 }
 
 public record LoginRequest(string Username, string Password);

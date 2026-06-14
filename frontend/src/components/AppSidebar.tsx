@@ -4,6 +4,12 @@ import { ChevronUp } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+
+const ENV_BADGE: Record<string, string> = {
+  development: "Development",
+  training:    "Training",
+};
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,7 +79,14 @@ export function AppSidebar({ navMain, navBottom }: Props) {
                    UV
                 </div>
                 <div className="flex flex-col leading-none">
-                  <span className="font-heading font-semibold text-sm">SIGE</span>
+                  <span className="font-heading font-semibold text-lg flex items-center gap-1.5">
+                    SIGE
+                    {ENV_BADGE[import.meta.env.MODE] && (
+                      <Badge className="h-4 px-1.5 text-xs bg-transparent text-red-600 border-red-600">
+                        {ENV_BADGE[import.meta.env.MODE]}
+                      </Badge>
+                    )}
+                  </span>
                   <span className="text-xs text-muted-foreground">Gerencial</span>
                 </div>
               </SidebarMenuButton>
