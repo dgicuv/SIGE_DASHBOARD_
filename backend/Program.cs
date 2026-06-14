@@ -14,12 +14,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Repositories
 if (builder.Environment.IsDevelopment())
+{
     builder.Services.AddScoped<IRegionesRepository, FakeRegionesRepository>();
+    builder.Services.AddScoped<IDependenciasRepository, FakeDependenciasRepository>();
+}
 else
+{
     builder.Services.AddScoped<IRegionesRepository, RegionesRepository>();
+    builder.Services.AddScoped<IDependenciasRepository, DependenciasRepository>();
+}
 
 // Handlers
 builder.Services.AddScoped<GetActiveRegionesHandler>();
+builder.Services.AddScoped<GetActiveDependenciasHandler>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
