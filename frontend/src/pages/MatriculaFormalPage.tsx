@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CustomChart } from "@/custom-components/CustomChart";
 import { apiFetch } from "@/lib/api";
 import { useAppData } from "@/contexts/appData";
@@ -33,6 +33,26 @@ export default function MatriculaFormalPage() {
         `${d.clave} ${d.name} ${d.regionName}`.toLowerCase().includes(busqueda.toLowerCase())
       )
     : dependenciasFiltradas;
+
+  const selectedDependenciaId =
+    dependencia === TODAS_DEPENDENCIAS
+      ? null
+      : dependencias.find((d) => `${d.clave} - ${d.name} - ${d.regionName}` === dependencia)?.id ?? null;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams();
+    if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
+    if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
+    const query = params.size > 0 ? `?${params}` : "";
+
+    apiFetch(`/api/v1/matricula/graficas/discapacidad-por-area-academica${query}`, { signal: controller.signal })
+      .then((r) => r.json())
+      .then((data) => console.log("[discapacidad-por-area-academica]", data))
+      .catch((err) => { if (err.name !== "AbortError") console.error("[discapacidad-por-area-academica]", err); });
+
+    return () => controller.abort();
+  }, [selectedRegionId, selectedDependenciaId]);
 
   function handleRegionChange(val: string | null) {
     if (!val) return;

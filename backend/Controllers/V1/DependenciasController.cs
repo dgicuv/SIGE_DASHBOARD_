@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace SIGE.Dashboard;
 
 [ApiController]
-[Authorize(Roles = "dependencias")]
+[Authorize]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 public class DependenciasController(GetActiveDependenciasHandler handler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await handler.HanddeAsync());
+    public async Task<IActionResult> GetAll() => Ok(await handler.HandleAsync());
 }

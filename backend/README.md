@@ -12,6 +12,7 @@ ASP.NET Core minimal API (.NET 10) que sirve como backend del dashboard SIGE.
 Los archivos `appsettings.{Environment}.json` **no se guardan en git**. Copia `appsettings.example.json` y llénalo con los datos reales:
 
 ```bash
+cp appsettings.example.json appsettings.DevelopmentLocal.json
 cp appsettings.example.json appsettings.Development.json
 cp appsettings.example.json appsettings.Training.json
 cp appsettings.example.json appsettings.Production.json

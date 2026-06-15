@@ -36,4 +36,5 @@ public class MatriculaFormalAdminController : ControllerBase
 
         return Ok();
     }
+
 }
