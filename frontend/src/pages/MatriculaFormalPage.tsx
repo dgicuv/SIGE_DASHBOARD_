@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { CustomChart } from "@/custom-components/CustomChart";
 import { apiFetch } from "@/lib/api";
 import { useAppData } from "@/contexts/appData";
@@ -30,7 +31,6 @@ export default function MatriculaFormalPage() {
     const [region, setRegion] = useState<string>(TODAS_REGIONES);
     const [dependencia, setDependencia] = useState<string>(TODAS_DEPENDENCIAS);
     const [busqueda, setBusqueda] = useState<string>("");
-    const [estadistica, setEstadistica] = useState<Estadistica | null>(null);
     const { regiones, dependencias } = useAppData();
 
     const selectedRegionId = regiones.find((r) => r.name === region)?.id ?? null;
@@ -51,38 +51,16 @@ export default function MatriculaFormalPage() {
             ? null
             : dependencias.find((d) => `${d.clave} - ${d.name} - ${d.regionName}` === dependencia)?.id ?? null;
 
-    // useEffect(() => {
-    //     const controller = new AbortController();
-    //     const params = new URLSearchParams();
-    //     if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
-    //     if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
-    //     const query = params.size > 0 ? `?${params}` : "";
-    //
-    //     apiFetch(`/api/v1/matricula/graficas/discapacidad-por-area-academica${query}`, { signal: controller.signal })
-    //         .then((r) => r.json())
-    //         .then((data) => console.log("[discapacidad-por-area-academica]", data))
-    //         .catch((err) => { if (err.name !== "AbortError") console.error("[discapacidad-por-area-academica]", err); });
-    //
-    //     return () => controller.abort();
-    // }, [selectedRegionId, selectedDependenciaId]);
-    //
-
-    useEffect(() => {
-        const controller = new AbortController();
-        const params = new URLSearchParams();
-        if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
-        if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
-        const query = params.size > 0 ? `?${params}` : "";
-
-        apiFetch(`/api/v1/matriculaformal/graficas/estadistica${query}`, { signal: controller.signal })
-            .then((r) => r.json())
-            .then((data: Estadistica) => {
-                setEstadistica(data);
-            })
-            .catch((err) => { if (err.name !== "AbortError") console.error("[estadistica]", err); });
-
-        return () => controller.abort();
-    }, [selectedRegionId, selectedDependenciaId]);
+    const { data: estadistica, isLoading: estadisticaLoading } = useQuery<Estadistica>({
+        queryKey: ["matricula", "estadistica", selectedRegionId, selectedDependenciaId],
+        queryFn: ({ signal }) => {
+            const params = new URLSearchParams();
+            if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
+            if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
+            const query = params.size > 0 ? `?${params}` : "";
+            return apiFetch(`/api/v1/matriculaformal/graficas/estadistica${query}`, { signal }).then((r) => r.json());
+        },
+    });
 
     function handleRegionChange(val: string | null) {
         if (!val) return;
@@ -93,7 +71,7 @@ export default function MatriculaFormalPage() {
 
     return (
         <div className="flex flex-col gap-0">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4">
+            <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-background border-b">
                 <Combobox value={region} onValueChange={handleRegionChange}>
                     <ComboboxInput placeholder={TODAS_REGIONES} className="w-full" readOnly />
                     <ComboboxContent>
@@ -143,12 +121,12 @@ export default function MatriculaFormalPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4">
-                <StatItem titulo="Matrícula"      icon={<GraduationCap className="size-8" />}  description={estadistica?.totalMatricula     ?? "—"} className="text-orange-500" />
-                <StatItem titulo="Discapacidad"   icon={<AccessibilityIcon className="size-8" />} description={estadistica?.totalDiscapacidad  ?? "—"} className="text-blue-400"  />
-                <StatItem titulo="Lengua Indígena" icon={<SpeechIcon className="size-8" />}      description={estadistica?.totalLenguaIndigena ?? "—"} className="text-rose-700"  />
-                <StatItem titulo="Hombres"        icon={<MarsIcon className="size-8" />}        description={estadistica?.totalHombres      ?? "—"} className="text-cyan-500"  />
-                <StatItem titulo="Mujeres"        icon={<VenusIcon className="size-8" />}       description={estadistica?.totalMujeres      ?? "—"} className="text-pink-500"  />
-                <StatItem titulo="No binario"     icon={<NonBinary className="size-8" />}       description={estadistica?.totalNoBinario    ?? "—"} className="text-purple-500" />
+                <StatItem titulo="Matrícula" icon={<GraduationCap className="size-8" />} description={estadistica?.totalMatricula ?? "—"} loading={estadisticaLoading} className="text-orange-500" />
+                <StatItem titulo="Discapacidad" icon={<AccessibilityIcon className="size-8" />} description={estadistica?.totalDiscapacidad ?? "—"} loading={estadisticaLoading} className="text-blue-400" />
+                <StatItem titulo="Lengua Indígena" icon={<SpeechIcon className="size-8" />} description={estadistica?.totalLenguaIndigena ?? "—"} loading={estadisticaLoading} className="text-rose-700" />
+                <StatItem titulo="Hombres" icon={<MarsIcon className="size-8" />} description={estadistica?.totalHombres ?? "—"} loading={estadisticaLoading} className="text-cyan-500" />
+                <StatItem titulo="Mujeres" icon={<VenusIcon className="size-8" />} description={estadistica?.totalMujeres ?? "—"} loading={estadisticaLoading} className="text-pink-500" />
+                <StatItem titulo="No binario" icon={<NonBinary className="size-8" />} description={estadistica?.totalNoBinario ?? "—"} loading={estadisticaLoading} className="text-purple-500" />
             </div>
 
             <div className="flex flex-wrap content-start gap-0 p-2">
