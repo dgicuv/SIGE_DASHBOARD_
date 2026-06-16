@@ -107,14 +107,14 @@ export default function MatriculaFormalPage() {
                         </div>
                         <ComboboxList>
                             <ComboboxItem value={TODAS_DEPENDENCIAS}>{TODAS_DEPENDENCIAS}</ComboboxItem>
-                            {dependenciasMostradas.map((d) => {
-                                const label = `${d.clave} - ${d.name} - ${d.regionName}`;
-                                return (
-                                    <ComboboxItem key={d.id} value={label}>
-                                        {label}
-                                    </ComboboxItem>
-                                );
-                            })}
+                            {dependenciasMostradas.map((d) => (
+                                <ComboboxItem key={d.id} value={`${d.clave} - ${d.name} - ${d.regionName}`}>
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="truncate">{d.clave} - {d.name}</span>
+                                        <span className="truncate text-xs text-muted-foreground">{d.regionName}</span>
+                                    </div>
+                                </ComboboxItem>
+                            ))}
                         </ComboboxList>
                     </ComboboxContent>
                 </Combobox>
