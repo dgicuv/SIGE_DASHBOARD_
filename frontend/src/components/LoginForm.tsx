@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useForm, type FieldErrors } from "react-hook-form"
 import { toast } from "sonner"
-import imagen from '../assets/imagen.png'
+import imagen from '../assets/imagen.svg'
 import { Badge } from "@/components/ui/badge"
 import { CircleDot } from "lucide-react"
 
