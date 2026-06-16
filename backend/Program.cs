@@ -23,6 +23,7 @@ builder.Services.AddScoped<GetActiveRegionesHandler>();
 builder.Services.AddScoped<GetActiveDependenciasHandler>();
 builder.Services.AddScoped<GetActiveProgramasEducativosHandler>();
 builder.Services.AddScoped<GetAllMatriculaHandler>();
+builder.Services.AddScoped<GetEstadisticaMatriculaHandler>();
 builder.Services.AddScoped<GetDiscapacidadPorAreaAcademicaHandler>();
 
 builder.Services

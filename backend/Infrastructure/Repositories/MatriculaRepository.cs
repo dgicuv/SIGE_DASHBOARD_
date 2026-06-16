@@ -10,6 +10,22 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
             .OrderBy(m => m.ProgramaEducativo!.Name)
             .ToListAsync();
 
+    public async Task<IEnumerable<Matricula>> GetAllAsync(int? idRegion, int? idDependencia)
+    {
+        var query = db.Matriculas
+            .Include(m => m.ProgramaEducativo)
+                .ThenInclude(p => p!.Dependencia)
+            .AsQueryable();
+
+        if (idRegion.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion.Value);
+
+        if (idDependencia.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
+
+        return await query.ToListAsync();
+    }
+
     public async Task<IEnumerable<DiscapacidadPorAreaAcademicaDto>> GetDiscapacidadPorAreaAcademicaAsync(int? idRegion, int? idDependencia)
     {
         var query = db.Matriculas

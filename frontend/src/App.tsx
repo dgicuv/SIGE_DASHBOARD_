@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useIdleTimer } from "react-idle-timer";
 import { appConfig } from "@/config/appConfig";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigat
 import { AppSidebar, type NavItem } from "@/components/AppSidebar";
 import { LoginForm } from "@/components/LoginForm";
 import { useAuth } from "@/contexts/auth";
+import { useIsLg } from "@/hooks/use-mobile";
 import { useAppData } from "@/contexts/appData";
 import {
     SidebarInset,
@@ -155,6 +156,12 @@ function Layout() {
     const { roles, logout } = useAuth();
     const navigate = useNavigate();
     const currentKey = location.pathname === "/" ? "general" : location.pathname.slice(1);
+    const isLg = useIsLg();
+    const [sidebarOpen, setSidebarOpen] = useState(isLg);
+
+    useEffect(() => {
+        setSidebarOpen(isLg);
+    }, [isLg]);
 
     useIdleTimer({
         timeout: appConfig.idleTimeoutMs,
@@ -165,7 +172,7 @@ function Layout() {
     const visibleNavMain = navMain.filter((item) => roles.includes(item.key));
 
     return (
-        <SidebarProvider>
+        <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <AppSidebar navMain={visibleNavMain} navBottom={navBottom} />
             <SidebarInset>
                 <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
