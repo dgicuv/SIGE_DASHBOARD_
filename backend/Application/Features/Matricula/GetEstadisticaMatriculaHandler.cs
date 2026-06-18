@@ -11,7 +11,9 @@ public class GetEstadisticaMatriculaHandler(IMatriculaRepository repository)
             TotalDiscapacidad: matriculas.Sum(m => m.DiscapacidadHombres + m.DiscapacidadMujeres),
             TotalLenguaIndigena: matriculas.Sum(m => m.LenguaIndigenaHombres + m.LenguaIndigenaMujeres),
             TotalMujeres: matriculas.Sum(m => m.MatriculaMujeres),
-            TotalHombres: matriculas.Sum(m => m.MatriculaHombres)
+            TotalHombres: matriculas.Sum(m => m.MatriculaHombres),
+            TotalNoBinario: matriculas.Sum(m => m.NoBinarioHombres + m.NoBinarioMujeres)
+
         );
     }
 }

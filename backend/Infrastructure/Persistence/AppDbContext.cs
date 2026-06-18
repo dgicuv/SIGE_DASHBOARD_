@@ -32,6 +32,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(m => m.PrimerIngresoMujeres).HasColumnName("primer_ingreso_mujeres");
             e.Property(m => m.MatriculaHombres).HasColumnName("matricula_hombres");
             e.Property(m => m.MatriculaMujeres).HasColumnName("matricula_mujeres");
+            e.Property(m => m.NoBinarioHombres).HasColumnName("no_binario_hombres");
+            e.Property(m => m.NoBinarioMujeres).HasColumnName("no_binario_mujeres");
             e.Property(m => m.DiscapacidadHombres).HasColumnName("discapacidad_hombres");
             e.Property(m => m.DiscapacidadMujeres).HasColumnName("discapacidad_mujeres");
             e.Property(m => m.LenguaIndigenaHombres).HasColumnName("lengua_indigena_hombres");

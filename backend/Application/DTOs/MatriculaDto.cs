@@ -17,6 +17,8 @@ public record MatriculaDto(
     int PrimerIngresoMujeres,
     int MatriculaHombres,
     int MatriculaMujeres,
+    int NoBinarioHombres,
+    int NoBinarioMujeres,
     int DiscapacidadHombres,
     int DiscapacidadMujeres,
     int LenguaIndigenaHombres,

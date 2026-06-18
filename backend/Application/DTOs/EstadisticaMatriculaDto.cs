@@ -5,5 +5,6 @@ public record EstadisticaMatriculaDto(
     int TotalDiscapacidad,
     int TotalLenguaIndigena,
     int TotalMujeres,
-    int TotalHombres
+    int TotalHombres,
+    int TotalNoBinario
 );

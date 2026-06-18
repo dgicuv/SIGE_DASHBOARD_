@@ -15,6 +15,8 @@ public class Matricula
     public int PrimerIngresoMujeres { get; set; }
     public int MatriculaHombres { get; set; }
     public int MatriculaMujeres { get; set; }
+    public int NoBinarioMujeres { get; set; }
+    public int NoBinarioHombres { get; set; }
     public int DiscapacidadHombres { get; set; }
     public int DiscapacidadMujeres { get; set; }
     public int LenguaIndigenaHombres { get; set; }

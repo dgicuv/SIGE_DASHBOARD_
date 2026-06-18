@@ -22,6 +22,8 @@ public class GetAllMatriculaHandler(IMatriculaRepository repository)
             m.PrimerIngresoMujeres,
             m.MatriculaHombres,
             m.MatriculaMujeres,
+            m.NoBinarioHombres,
+            m.NoBinarioMujeres,
             m.DiscapacidadHombres,
             m.DiscapacidadMujeres,
             m.LenguaIndigenaHombres,
