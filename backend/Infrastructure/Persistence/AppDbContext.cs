@@ -20,6 +20,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.ToTable("_matricula");
             e.HasKey(m => m.IdProgramaEducativo);
             e.Property(m => m.IdProgramaEducativo).HasColumnName("id_programa_educativo");
+            e.Property(m => m.Anio).HasColumnName("anio");
             e.Property(m => m.EgresadosHombres).HasColumnName("egresados_hombres");
             e.Property(m => m.EgresadosMujeres).HasColumnName("egresados_mujeres");
             e.Property(m => m.TituladosHombres).HasColumnName("titulados_hombres");

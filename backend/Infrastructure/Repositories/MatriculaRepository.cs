@@ -46,15 +46,22 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
         return rows
             .GroupBy(m => new
             {
-                AreaId = m.ProgramaEducativo!.FkIdAreasAcademicas,
-                AreaNombre = m.ProgramaEducativo.AreaAcademica!.Name
+                AreaNombre = m.ProgramaEducativo!.AreaAcademica!.Name,
+                m.Anio
             })
-            .Select(g =>
+            .SelectMany(g =>
             {
                 var hombres = g.Sum(m => m.DiscapacidadHombres);
                 var mujeres = g.Sum(m => m.DiscapacidadMujeres);
-                return new DiscapacidadPorAreaAcademicaDto(g.Key.AreaNombre, hombres, mujeres, hombres + mujeres);
+                return new[]
+                {
+                    new DiscapacidadPorAreaAcademicaDto(g.Key.AreaNombre, g.Key.Anio, "Hombre", hombres),
+                    new DiscapacidadPorAreaAcademicaDto(g.Key.AreaNombre, g.Key.Anio, "Mujer", mujeres),
+                    new DiscapacidadPorAreaAcademicaDto(g.Key.AreaNombre, g.Key.Anio, "Todos", hombres + mujeres),
+                };
             })
-            .OrderBy(dto => dto.AreaAcademica);
+            .OrderBy(dto => dto.AreaAcademica)
+            .ThenBy(dto => dto.Anio)
+            .ThenBy(dto => dto.Sexo);
     }
 }

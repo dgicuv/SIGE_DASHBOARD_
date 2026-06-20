@@ -13,7 +13,6 @@ public class GetEstadisticaMatriculaHandler(IMatriculaRepository repository)
             TotalMujeres: matriculas.Sum(m => m.MatriculaMujeres),
             TotalHombres: matriculas.Sum(m => m.MatriculaHombres),
             TotalNoBinario: matriculas.Sum(m => m.NoBinarioHombres + m.NoBinarioMujeres)
-
         );
     }
 }

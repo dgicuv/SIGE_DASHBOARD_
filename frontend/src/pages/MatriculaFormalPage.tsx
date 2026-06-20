@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { CustomChart } from "@/custom-components/CustomChart";
-import { apiFetch } from "@/lib/api";
-import { useAppData } from "@/contexts/appData";
+import {useState} from "react";
+import {useQuery} from "@tanstack/react-query";
+import {CustomChart} from "@/custom-components/CustomChart";
+import {apiFetch} from "@/lib/api";
+import {useAppData} from "@/contexts/appData";
 import {
     Combobox,
     ComboboxContent,
@@ -11,10 +11,10 @@ import {
     ComboboxList,
     ComboboxTrigger,
 } from "@/components/ui/combobox";
-import { cn } from "@/lib/utils";
-import { StatItem } from "@/components/StatItem";
-import { AccessibilityIcon, GraduationCap, MarsIcon, NonBinary, SpeechIcon, VenusIcon } from "lucide-react";
-import { Temporal } from "@/custom-components/Temporal";
+import {cn} from "@/lib/utils";
+import {StatItem} from "@/components/StatItem";
+import {AccessibilityIcon, GraduationCap, MarsIcon, NonBinary, SpeechIcon, VenusIcon} from "lucide-react";
+import {CustomPieChart} from "@custom/CustomPieChart.tsx";
 
 const TODAS_REGIONES = "Todas las Regiones";
 const TODAS_DEPENDENCIAS = "Todas las Dependencias";
@@ -28,24 +28,17 @@ type Estadistica = {
     totalNoBinario: number;
 };
 
-type DiscapacidadPorAreaAcademica = {
-    areaAcademica: string;
-    anio: number;
-    sexo: string;
-    total: number;
-};
-
 export default function MatriculaFormalPage() {
     const [region, setRegion] = useState<string>(TODAS_REGIONES);
     const [dependencia, setDependencia] = useState<string>(TODAS_DEPENDENCIAS);
     const [busqueda, setBusqueda] = useState<string>("");
-    const { regiones, dependencias } = useAppData();
+    const {regiones, dependencias} = useAppData();
 
     const selectedRegionId = regiones.find((r) => r.name === region)?.id ?? null;
 
     const dependenciasFiltradas = (selectedRegionId === null
-        ? dependencias
-        : dependencias.filter((d) => d.regionId === selectedRegionId)
+            ? dependencias
+            : dependencias.filter((d) => d.regionId === selectedRegionId)
     ).toSorted((a, b) => a.clave.localeCompare(b.clave));
 
     const dependenciasMostradas = busqueda.trim()
@@ -59,40 +52,16 @@ export default function MatriculaFormalPage() {
             ? null
             : dependencias.find((d) => `${d.clave} - ${d.name} - ${d.regionName}` === dependencia)?.id ?? null;
 
-    const { data: estadistica, isLoading: estadisticaLoading } = useQuery<Estadistica>({
+    const {data: estadistica, isLoading: estadisticaLoading} = useQuery<Estadistica>({
         queryKey: ["matricula", "estadistica", selectedRegionId, selectedDependenciaId],
-        queryFn: ({ signal }) => {
+        queryFn: ({signal}) => {
             const params = new URLSearchParams();
             if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
             if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
             const query = params.size > 0 ? `?${params}` : "";
-            return apiFetch(`/api/v1/matriculaformal/graficas/estadistica${query}`, { signal }).then((r) => r.json());
+            return apiFetch(`/api/v1/matriculaformal/graficas/estadistica${query}`, {signal}).then((r) => r.json());
         },
     });
-
-    const { data: discapacidadPorAreaAcademica } = useQuery<DiscapacidadPorAreaAcademica[]>({
-        queryKey: ["matricula", "discapacidad-por-area-academica", selectedRegionId, selectedDependenciaId],
-        queryFn: ({ signal }) => {
-            const params = new URLSearchParams();
-            if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
-            if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
-            const query = params.size > 0 ? `?${params}` : "";
-            return apiFetch(`/api/v1/matriculaformal/graficas/discapacidad-por-area-academica${query}`, { signal })
-                .then((r) => r.json())
-                .then((data) => {
-                    console.log("discapacidadPorAreaAcademica", data);
-                    return data;
-                });
-        },
-    });
-
-    const discapacidadPorAreaAcademicaData =
-        discapacidadPorAreaAcademica?.map((d) => ({
-            name: d.areaAcademica,
-            value: d.total,
-            sexo: d.sexo,
-            anio: d.anio,
-        })) ?? [];
 
     function handleRegionChange(val: string | null) {
         if (!val) return;
@@ -103,9 +72,10 @@ export default function MatriculaFormalPage() {
 
     return (
         <div className="flex flex-col gap-0">
-            <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-background border-b shadow-md">
+            <div
+                className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-background border-b shadow-md">
                 <Combobox value={region} onValueChange={handleRegionChange}>
-                    <ComboboxInput placeholder={TODAS_REGIONES} className="w-full" readOnly />
+                    <ComboboxInput placeholder={TODAS_REGIONES} className="w-full" readOnly/>
                     <ComboboxContent>
                         <ComboboxList>
                             <ComboboxItem value={TODAS_REGIONES}>{TODAS_REGIONES}</ComboboxItem>
@@ -120,10 +90,15 @@ export default function MatriculaFormalPage() {
 
                 <Combobox
                     value={dependencia}
-                    onValueChange={(val) => { setDependencia(val ?? TODAS_DEPENDENCIAS); setBusqueda(""); }}
+                    onValueChange={(val) => {
+                        setDependencia(val ?? TODAS_DEPENDENCIAS);
+                        setBusqueda("");
+                    }}
                 >
-                    <ComboboxTrigger className="flex h-9 w-full items-center justify-between rounded-2xl border border-input bg-background px-3 shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground">
-                        <span className={cn("truncate text-sm", dependencia === TODAS_DEPENDENCIAS && "text-muted-foreground")}>
+                    <ComboboxTrigger
+                        className="flex h-9 w-full items-center justify-between rounded-2xl border border-input bg-background px-3 shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground">
+                        <span
+                            className={cn("truncate text-sm", dependencia === TODAS_DEPENDENCIAS && "text-muted-foreground")}>
                             {dependencia}
                         </span>
                     </ComboboxTrigger>
@@ -153,23 +128,34 @@ export default function MatriculaFormalPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4">
-                <StatItem titulo="Matrícula" icon={<GraduationCap className="size-8" />} description={estadistica?.totalMatricula ?? "—"} loading={estadisticaLoading} className="text-orange-500" />
-                <StatItem titulo="Discapacidad" icon={<AccessibilityIcon className="size-8" />} description={estadistica?.totalDiscapacidad ?? "—"} loading={estadisticaLoading} className="text-blue-400" />
-                <StatItem titulo="Lengua Indígena" icon={<SpeechIcon className="size-8" />} description={estadistica?.totalLenguaIndigena ?? "—"} loading={estadisticaLoading} className="text-rose-700" />
-                <StatItem titulo="Hombres" icon={<MarsIcon className="size-8" />} description={estadistica?.totalHombres ?? "—"} loading={estadisticaLoading} className="text-cyan-500" />
-                <StatItem titulo="Mujeres" icon={<VenusIcon className="size-8" />} description={estadistica?.totalMujeres ?? "—"} loading={estadisticaLoading} className="text-pink-500" />
-                <StatItem titulo="No binario" icon={<NonBinary className="size-8" />} description={estadistica?.totalNoBinario ?? "—"} loading={estadisticaLoading} className="text-purple-500" />
+                <StatItem titulo="Matrícula" icon={<GraduationCap className="size-8"/>}
+                          description={estadistica?.totalMatricula ?? "—"} loading={estadisticaLoading}
+                          className="text-orange-500"/>
+                <StatItem titulo="Discapacidad" icon={<AccessibilityIcon className="size-8"/>}
+                          description={estadistica?.totalDiscapacidad ?? "—"} loading={estadisticaLoading}
+                          className="text-blue-400"/>
+                <StatItem titulo="Lengua Indígena" icon={<SpeechIcon className="size-8"/>}
+                          description={estadistica?.totalLenguaIndigena ?? "—"} loading={estadisticaLoading}
+                          className="text-rose-700"/>
+                <StatItem titulo="Hombres" icon={<MarsIcon className="size-8"/>}
+                          description={estadistica?.totalHombres ?? "—"} loading={estadisticaLoading}
+                          className="text-cyan-500"/>
+                <StatItem titulo="Mujeres" icon={<VenusIcon className="size-8"/>}
+                          description={estadistica?.totalMujeres ?? "—"} loading={estadisticaLoading}
+                          className="text-pink-500"/>
+                <StatItem titulo="No binario" icon={<NonBinary className="size-8"/>}
+                          description={estadistica?.totalNoBinario ?? "—"} loading={estadisticaLoading}
+                          className="text-purple-500"/>
             </div>
 
             <div className="flex flex-wrap content-start gap-0 p-2">
 
 
-
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
                     <CustomChart
                         queryKey={["dashboard", "entidades", region]}
-                        queryFn={({ signal }) =>
-                            apiFetch("/api/v1/entidadesdependencias/entidades", { signal }).then((r) => r.json())
+                        queryFn={({signal}) =>
+                            apiFetch("/api/v1/entidadesdependencias/entidades", {signal}).then((r) => r.json())
                         }
                         colors={["#70AB6D"]}
                     />
@@ -177,26 +163,31 @@ export default function MatriculaFormalPage() {
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
                     <CustomChart
                         queryKey={["dashboard", "personal", region]}
-                        queryFn={({ signal }) =>
-                            apiFetch("/api/v1/entidadesdependencias/personal", { signal }).then((r) => r.json())
+                        queryFn={({signal}) =>
+                            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())
                         }
                         colors={["#C8796F"]}
                         orientation="vertical"
                     />
                 </div>
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
-                    <Temporal
-                        data={discapacidadPorAreaAcademicaData}
-                        label={["Alumnos con", "Discapacidad"]}
-                        title="Discapacidad por Área Académica"
+                    <CustomPieChart
+                        queryKey={["dashboard", "discapacidad", selectedRegionId, selectedDependenciaId]}
+                        queryFn={({signal}) => {
+                            const params = new URLSearchParams();
+                            if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
+                            if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
+                            const query = params.size > 0 ? `?${params}` : "";
+                            return apiFetch(`/api/v1/matriculaformal/graficas/discapacidad-por-area-academica${query}`, {signal}).then((r) => r.json());
+                        }}
                     />
                 </div>
 
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
                     <CustomChart
                         queryKey={["dashboard", "personal2", region]}
-                        queryFn={({ signal }) =>
-                            apiFetch("/api/v1/entidadesdependencias/personal", { signal }).then((r) => r.json())
+                        queryFn={({signal}) =>
+                            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())
                         }
                         colors={["#C8796F"]}
                         orientation="vertical"

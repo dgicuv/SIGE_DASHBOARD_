@@ -12,7 +12,7 @@ type UseBarLineChartParams = {
   categories: readonly string[];
   values: readonly number[];
   colors?: string[];
-  mode: "bar" | "line";
+  mode: "bar" | "line" | "pie";
   orientation?: "horizontal" | "vertical";
   valueFormat?: ValueFormat;
   grid?: { left?: number; right?: number; top?: number; bottom?: number };

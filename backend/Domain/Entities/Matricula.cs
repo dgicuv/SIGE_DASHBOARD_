@@ -3,6 +3,7 @@ namespace SIGE.Dashboard;
 public class Matricula
 {
     public int IdProgramaEducativo { get; set; }
+    public int Anio { get; set; }
     public int EgresadosHombres { get; set; }
     public int EgresadosMujeres { get; set; }
     public int TituladosHombres { get; set; }
