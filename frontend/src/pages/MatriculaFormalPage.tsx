@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { StatItem } from "@/components/StatItem";
 import { AccessibilityIcon, GraduationCap, MarsIcon, NonBinary, SpeechIcon, VenusIcon } from "lucide-react";
+import { Temporal } from "@/custom-components/Temporal";
 
 const TODAS_REGIONES = "Todas las Regiones";
 const TODAS_DEPENDENCIAS = "Todas las Dependencias";
@@ -25,6 +26,13 @@ type Estadistica = {
     totalHombres: number;
     totalMujeres: number;
     totalNoBinario: number;
+};
+
+type DiscapacidadPorAreaAcademica = {
+    areaAcademica: string;
+    anio: number;
+    sexo: string;
+    total: number;
 };
 
 export default function MatriculaFormalPage() {
@@ -62,6 +70,30 @@ export default function MatriculaFormalPage() {
         },
     });
 
+    const { data: discapacidadPorAreaAcademica } = useQuery<DiscapacidadPorAreaAcademica[]>({
+        queryKey: ["matricula", "discapacidad-por-area-academica", selectedRegionId, selectedDependenciaId],
+        queryFn: ({ signal }) => {
+            const params = new URLSearchParams();
+            if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
+            if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
+            const query = params.size > 0 ? `?${params}` : "";
+            return apiFetch(`/api/v1/matriculaformal/graficas/discapacidad-por-area-academica${query}`, { signal })
+                .then((r) => r.json())
+                .then((data) => {
+                    console.log("discapacidadPorAreaAcademica", data);
+                    return data;
+                });
+        },
+    });
+
+    const discapacidadPorAreaAcademicaData =
+        discapacidadPorAreaAcademica?.map((d) => ({
+            name: d.areaAcademica,
+            value: d.total,
+            sexo: d.sexo,
+            anio: d.anio,
+        })) ?? [];
+
     function handleRegionChange(val: string | null) {
         if (!val) return;
         setRegion(val);
@@ -71,7 +103,7 @@ export default function MatriculaFormalPage() {
 
     return (
         <div className="flex flex-col gap-0">
-            <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-background border-b">
+            <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-background border-b shadow-md">
                 <Combobox value={region} onValueChange={handleRegionChange}>
                     <ComboboxInput placeholder={TODAS_REGIONES} className="w-full" readOnly />
                     <ComboboxContent>
@@ -130,6 +162,9 @@ export default function MatriculaFormalPage() {
             </div>
 
             <div className="flex flex-wrap content-start gap-0 p-2">
+
+
+
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
                     <CustomChart
                         queryKey={["dashboard", "entidades", region]}
@@ -149,6 +184,14 @@ export default function MatriculaFormalPage() {
                         orientation="vertical"
                     />
                 </div>
+                <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
+                    <Temporal
+                        data={discapacidadPorAreaAcademicaData}
+                        label={["Alumnos con", "Discapacidad"]}
+                        title="Discapacidad por Área Académica"
+                    />
+                </div>
+
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
                     <CustomChart
                         queryKey={["dashboard", "personal2", region]}
