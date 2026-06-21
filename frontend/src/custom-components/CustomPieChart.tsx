@@ -1,17 +1,14 @@
 import {useMemo, useState} from "react";
 import {type QueryFunctionContext, type QueryKey, useQuery} from "@tanstack/react-query";
-import {useBarLineChart} from "@/hooks/useBarLineChart";
 import {Button} from "@/components/ui/button";
 import {Spinner} from "@/components/ui/spinner";
-import {Dialog, DialogContent, DialogHeader, DialogTitle,} from "@/components/ui/dialog";
 import {CustomDataTable} from "@custom/CustomDataTable.tsx";
 import {CustomChartContainer} from "@custom/CustomChartContainer.tsx";
+import {CustomModalChart} from "@custom/CustomModalChart.tsx";
 import {type ChartMode, CustomChartMenu, type FormatValuesMode} from "@custom/CustomChartMenu.tsx";
 import {CustomChartFilters} from "@/custom-components-filter/CustomChartFilters.tsx";
 import {type FilterAccessor, useChartFilters} from "@/hooks/useChartFilters";
 import {usePieChart} from "@/hooks/usePieChart.ts";
-
-type ValueFormat = "number" | "currency";
 
 export type PieDatum = {
     areaAcademica: string;
@@ -34,65 +31,6 @@ export type CustomChartPieProps = {
     selectedRegion?: string;
     selectedDependencia?: string;
 };
-
-type ModalChartProps = {
-    title: string;
-    subtext?: string;
-    footer: string;
-    categories: readonly string[];
-    values: readonly number[];
-    colors?: string[];
-    valueFormat?: ValueFormat;
-    formatValue?: FormatValuesMode;
-    orientation?: "horizontal" | "vertical";
-    mode: ChartMode;
-    grid?: { left?: number; right?: number; top?: number; bottom?: number };
-};
-
-function ModalChart({
-                        title,
-                        subtext,
-                        footer,
-                        categories,
-                        values,
-                        colors,
-                        valueFormat,
-                        formatValue,
-                        orientation,
-                        mode,
-                        grid,
-                    }: ModalChartProps) {
-    const {containerRef} = useBarLineChart({
-        title,
-        footer,
-        categories,
-        values,
-        colors,
-        mode: mode === "data" || mode === 'graph' ? "pie" : mode,
-        orientation,
-        valueFormat,
-        grid,
-    });
-
-    return (
-        <>
-            <div
-                ref={containerRef}
-                className={`w-full h-full${mode === "data" ? " hidden" : ""}`}
-            />
-            {mode === "data" && (
-                <CustomDataTable
-                    title={title}
-                    subtext={subtext}
-                    categories={categories}
-                    values={values}
-                    valueFormat={valueFormat}
-                    formatValue={formatValue}
-                />
-            )}
-        </>
-    );
-}
 
 export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDependencia}: CustomChartPieProps) {
     const {data, isFetching, isError, refetch} = useQuery({queryKey, queryFn});
@@ -150,8 +88,10 @@ export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDepen
     });
 
     return (
-        <>
+        <CustomModalChart isFullscreen={isFullscreen} onOpenChange={setIsFullscreen} title={title}>
             <CustomChartContainer
+                isFullscreen={isFullscreen}
+                onClose={() => setIsFullscreen(false)}
                 footer={hasData ? info : ""}
                 filter={hasData ? (
                         <CustomChartFilters
@@ -215,29 +155,7 @@ export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDepen
                         formatValue={formatValue}
                     />
                 )}
-
             </CustomChartContainer>
-
-            <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-                <DialogContent className="w-[80vw] h-[90vh] max-w-none sm:max-w-none flex flex-col gap-4">
-                    <DialogHeader>
-                        <DialogTitle className="text-lg">{title}</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex-1 min-h-0 overflow-auto p-8">
-                        <ModalChart
-                            title={title}
-                            subtext={subtext}
-                            footer={info}
-                            categories={categories}
-                            values={values}
-                            formatValue={formatValue}
-                            mode={mode}
-                            grid={{left: 0, right: 0, top: 0, bottom: 0}}
-                        />
-                    </div>
-                    <p className="text-xs text-gray-400">{info}</p>
-                </DialogContent>
-            </Dialog>
-        </>
+        </CustomModalChart>
     );
 }

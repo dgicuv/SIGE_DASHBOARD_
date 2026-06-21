@@ -1,14 +1,33 @@
-import {useEffect, useRef} from "react";
+import {useCallback, useEffect, useRef} from "react";
 import type {EChartsOption} from "echarts";
 import * as echarts from "echarts";
 import {fileTimestamp} from "@/lib/utils";
 
 export function useEChart(option: EChartsOption, exportExtra?: Partial<EChartsOption>) {
-    const containerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<echarts.ECharts | null>(null);
+    const domRef = useRef<HTMLDivElement | null>(null);
+    const optionRef = useRef(option);
+    optionRef.current = option;
     const handleResize = useRef(() => {
         chartRef.current?.resize();
     });
+
+    // Callback ref (en vez de useRef simple): cuando el contenedor se mueve entre dos
+    // árboles distintos (ej. de la card al modal de pantalla completa), React desmonta y
+    // remonta el div, por lo que hay que reinicializar el chart en el nuevo nodo.
+    const containerRef = useCallback((node: HTMLDivElement | null) => {
+        if (chartRef.current) {
+            window.removeEventListener("resize", handleResize.current);
+            chartRef.current.dispose();
+            chartRef.current = null;
+        }
+        domRef.current = node;
+        if (node && node.clientWidth) {
+            chartRef.current = echarts.init(node);
+            window.addEventListener("resize", handleResize.current);
+            chartRef.current.setOption({...optionRef.current, animation: false}, {notMerge: false});
+        }
+    }, []);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -21,7 +40,7 @@ export function useEChart(option: EChartsOption, exportExtra?: Partial<EChartsOp
 
     // Init lazily (only when container has real dimensions) + apply option
     useEffect(() => {
-        const container = containerRef.current;
+        const container = domRef.current;
         if (!container || !container.clientWidth) return;
 
         if (!chartRef.current) {

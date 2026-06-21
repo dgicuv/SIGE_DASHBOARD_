@@ -4,12 +4,7 @@ import { useQuery, type QueryFunctionContext, type QueryKey } from "@tanstack/re
 import { useBarLineChart } from "@/hooks/useBarLineChart";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { CustomModalChart } from "@custom/CustomModalChart.tsx";
 import { CardGraph, ChartMenu } from "@custom/CardGraph";
 import type { ChartMode } from "@custom/CardGraph";
 import { CustomDataTable } from "@custom/CustomDataTable.tsx";
@@ -34,59 +29,6 @@ export type CustomChartProps = {
   colors?: string[];
 };
 
-type ModalChartProps = {
-  title: string;
-  footer: string;
-  categories: readonly string[];
-  values: readonly number[];
-  colors?: string[];
-  valueFormat?: ValueFormat;
-  orientation?: "horizontal" | "vertical";
-  mode: ChartMode;
-  grid?: { left?: number; right?: number; top?: number; bottom?: number };
-};
-
-function ModalChart({
-  title,
-  footer,
-  categories,
-  values,
-  colors,
-  valueFormat,
-  orientation,
-  mode,
-  grid,
-}: ModalChartProps) {
-  const { containerRef } = useBarLineChart({
-    title,
-    footer,
-    categories,
-    values,
-    colors,
-    mode: mode === "data" ? "bar" : mode,
-    orientation,
-    valueFormat,
-    grid,
-  });
-
-  return (
-    <>
-      <div
-        ref={containerRef}
-        className={`w-full h-full${mode === "data" ? " hidden" : ""}`}
-      />
-      {mode === "data" && (
-        <CustomDataTable
-          title={title}
-          categories={categories}
-          values={values}
-          valueFormat={valueFormat}
-        />
-      )}
-    </>
-  );
-}
-
 export function CustomChart({ queryKey, queryFn, orientation, colors }: CustomChartProps) {
   const [mode, setMode] = useState<ChartMode>("bar");
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -109,7 +51,7 @@ export function CustomChart({ queryKey, queryFn, orientation, colors }: CustomCh
   });
 
   return (
-    <>
+    <CustomModalChart isFullscreen={isFullscreen} onOpenChange={setIsFullscreen} title={title}>
       <CardGraph
         title={hasData ? title : ""}
         footer={hasData ? footer : ""}
@@ -173,28 +115,6 @@ export function CustomChart({ queryKey, queryFn, orientation, colors }: CustomCh
           />
         )}
       </CardGraph>
-
-      <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="w-[80vw] h-[90vh] max-w-none sm:max-w-none flex flex-col gap-4">
-          <DialogHeader>
-            <DialogTitle className="text-lg">{title}</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 min-h-0 overflow-auto p-8">
-            <ModalChart
-              title={title}
-              footer={footer}
-              categories={data?.categories ?? []}
-              values={data?.values ?? []}
-              colors={colors}
-              valueFormat={data?.dataType}
-              orientation={orientation}
-              mode={mode}
-              grid={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            />
-          </div>
-          <p className="text-xs text-gray-400">{footer}</p>
-        </DialogContent>
-      </Dialog>
-    </>
+    </CustomModalChart>
   );
 }
