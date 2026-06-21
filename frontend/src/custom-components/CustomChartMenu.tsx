@@ -117,6 +117,7 @@ export function CustomChartMenu({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => setConfirmOpen(true)}
+                            disabled={mode === "data"}
                             className={"cursor-pointer"}
                         >
                             Descargar imagen

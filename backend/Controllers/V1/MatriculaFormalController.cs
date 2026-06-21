@@ -8,7 +8,10 @@ namespace SIGE.Dashboard;
 [Authorize(Roles = "matricula-formal")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class MatriculaFormalController(GetEstadisticaMatriculaHandler estadisticaHandler, GetDiscapacidadPorAreaAcademicaHandler discapacidadHandler) : ControllerBase
+public class MatriculaFormalController(
+    GetEstadisticaMatriculaHandler estadisticaHandler,
+    GetDiscapacidadPorAreaAcademicaHandler discapacidadHandler,
+    GetHablantesLenguaIndigenaHandler hablantesLenguaIndigenaHandler) : ControllerBase
 {
     [HttpGet("graficas/estadistica")]
     public async Task<IActionResult> GetEstadistica([FromQuery] int? idRegion, [FromQuery] int? idDependencia) =>
@@ -27,7 +30,24 @@ public class MatriculaFormalController(GetEstadisticaMatriculaHandler estadistic
             info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
             filter = new[] { "years", "sex" },
             data
+            
         });
     }
-
+    
+    
+    [HttpGet("graficas/hablantes-lengua-indigena")]
+    public async Task<IActionResult> GetHablantesLenguaIndigena(
+        [FromQuery] int? idRegion,
+        [FromQuery] int? idDependencia)
+    {
+        var data = await hablantesLenguaIndigenaHandler.HandleAsync(idRegion, idDependencia);
+        return Ok(new
+        {
+            title = "Hablantes de lengua indígena",
+            description = "Distribución de matrícula hablante de lengua indígena por área académica",
+            info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
+            filter = new[] { "years", "sex" },
+            data
+        });
+    }
 }

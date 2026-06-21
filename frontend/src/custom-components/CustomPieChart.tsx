@@ -9,9 +9,10 @@ import {type ChartMode, CustomChartMenu, type FormatValuesMode} from "@custom/Cu
 import {CustomChartFilters} from "@/custom-components-filter/CustomChartFilters.tsx";
 import {type FilterAccessor, useChartFilters} from "@/hooks/useChartFilters";
 import {usePieChart} from "@/hooks/usePieChart.ts";
+import {type ChartColorThemeId, chartColorThemes} from "@/config/chartConfig";
 
 export type PieDatum = {
-    areaAcademica: string;
+    name: string;
     anio: number;
     sexo: string;
     total: number;
@@ -30,9 +31,30 @@ export type CustomChartPieProps = {
     queryFn: (ctx: QueryFunctionContext) => Promise<ChartData>;
     selectedRegion?: string;
     selectedDependencia?: string;
+    colorTheme?: ChartColorThemeId;
 };
 
-export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDependencia}: CustomChartPieProps) {
+/**
+ * Renames `nameField` from each raw backend row into `name`, the field PieDatum expects.
+ * Use inside a queryFn to adapt an endpoint's grouping column (e.g. "region", "areaAcademica").
+ */
+export function mapPieDataField(
+    raw: Omit<ChartData, "data"> & {data: Record<string, unknown>[]},
+    nameField: string,
+): ChartData {
+    return {
+        ...raw,
+        data: raw.data.map(({[nameField]: name, ...rest}) => ({...rest, name})) as PieDatum[],
+    };
+}
+
+export function CustomPieChart({
+                                     queryKey,
+                                     queryFn,
+                                     selectedRegion,
+                                     selectedDependencia,
+                                     colorTheme = "default",
+                                 }: CustomChartPieProps) {
     const {data, isFetching, isError, refetch} = useQuery({queryKey, queryFn});
 
     const [mode, setMode] = useState<ChartMode>("graph");
@@ -57,7 +79,7 @@ export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDepen
 
     const {availableValues, selectedValues, setFilter, filteredRows} = useChartFilters(rows, filterAccessors);
 
-    const categories = filteredRows.map((d) => d.areaAcademica);
+    const categories = filteredRows.map((d) => d.name);
     const values = filteredRows.map((d) => d.total);
 
     const total = useMemo(() => values.reduce((sum, v) => sum + v, 0), [values]);
@@ -80,6 +102,7 @@ export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDepen
         info,
         categories,
         values,
+        colors: [...chartColorThemes[colorTheme]],
         formatValue,
         selectedSex: selectedValues.sex,
         selectedYear: selectedValues.years,

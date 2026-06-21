@@ -1,6 +1,5 @@
 import {useState} from "react";
 import {useQuery} from "@tanstack/react-query";
-import {CustomChart} from "@/custom-components/CustomChart";
 import {apiFetch} from "@/lib/api";
 import {useAppData} from "@/contexts/appData";
 import {
@@ -14,7 +13,7 @@ import {
 import {cn} from "@/lib/utils";
 import {StatItem} from "@/components/StatItem";
 import {AccessibilityIcon, GraduationCap, MarsIcon, NonBinary, SpeechIcon, VenusIcon} from "lucide-react";
-import {CustomPieChart} from "@custom/CustomPieChart.tsx";
+import {CustomPieChart, mapPieDataField} from "@custom/CustomPieChart.tsx";
 
 const TODAS_REGIONES = "Todas las Regiones";
 const TODAS_DEPENDENCIAS = "Todas las Dependencias";
@@ -151,50 +150,72 @@ export default function MatriculaFormalPage() {
             <div className="flex flex-wrap content-start gap-0 p-2">
 
 
-                <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
-                    <CustomChart
-                        queryKey={["dashboard", "entidades", region]}
-                        queryFn={({signal}) =>
-                            apiFetch("/api/v1/entidadesdependencias/entidades", {signal}).then((r) => r.json())
-                        }
-                        colors={["#70AB6D"]}
-                    />
-                </div>
-                <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
-                    <CustomChart
-                        queryKey={["dashboard", "personal", region]}
-                        queryFn={({signal}) =>
-                            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())
-                        }
-                        colors={["#C8796F"]}
-                        orientation="vertical"
-                    />
-                </div>
+                {/*<div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">*/}
+                {/*    <CustomChart*/}
+                {/*        queryKey={["dashboard", "entidades", region]}*/}
+                {/*        queryFn={({signal}) =>*/}
+                {/*            apiFetch("/api/v1/entidadesdependencias/entidades", {signal}).then((r) => r.json())*/}
+                {/*        }*/}
+                {/*        colors={["#70AB6D"]}*/}
+                {/*    />*/}
+                {/*</div>*/}
+                {/*<div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">*/}
+                {/*    <CustomChart*/}
+                {/*        queryKey={["dashboard", "personal", region]}*/}
+                {/*        queryFn={({signal}) =>*/}
+                {/*            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())*/}
+                {/*        }*/}
+                {/*        colors={["#C8796F"]}*/}
+                {/*        orientation="vertical"*/}
+                {/*    />*/}
+                {/*</div>*/}
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
                     <CustomPieChart
-                        queryKey={["dashboard", "discapacidad", selectedRegionId, selectedDependenciaId]}
+                        queryKey={["dashboard", "discapacidad-por-area-academica", selectedRegionId, selectedDependenciaId]}
                         queryFn={({signal}) => {
                             const params = new URLSearchParams();
                             if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
                             if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
                             const query = params.size > 0 ? `?${params}` : "";
-                            return apiFetch(`/api/v1/matriculaformal/graficas/discapacidad-por-area-academica${query}`, {signal}).then((r) => r.json());
+                            return apiFetch(`/api/v1/matriculaformal/graficas/discapacidad-por-area-academica${query}`, {signal})
+                                .then((r) => r.json())
+                                .then((raw) => mapPieDataField(raw, "areaAcademica"));
                         }}
                         selectedRegion={region}
                         selectedDependencia={dependencia}
+                        colorTheme={"kanagawa"}
                     />
                 </div>
 
+
                 <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
-                    <CustomChart
-                        queryKey={["dashboard", "personal2", region]}
-                        queryFn={({signal}) =>
-                            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())
-                        }
-                        colors={["#C8796F"]}
-                        orientation="vertical"
+                    <CustomPieChart
+                        queryKey={["dashboard", "hablantes-lengua-indigena", selectedRegionId, selectedDependenciaId]}
+                        queryFn={({signal}) => {
+                            const params = new URLSearchParams();
+                            if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
+                            if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
+                            const query = params.size > 0 ? `?${params}` : "";
+                            return apiFetch(`/api/v1/matriculaformal/graficas/hablantes-lengua-indigena${query}`, {signal})
+                                .then((r) => r.json())
+                                .then((raw) => mapPieDataField(raw, "region"));
+                        }}
+                        selectedRegion={region}
+                        selectedDependencia={dependencia}
+                        colorTheme={"monokai"}
                     />
                 </div>
+
+                {/*<div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">*/}
+                {/*    <CustomChart*/}
+                {/*        queryKey={["dashboard", "personal2", region]}*/}
+                {/*        queryFn={({signal}) =>*/}
+                {/*            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())*/}
+                {/*        }*/}
+                {/*        colors={["#C8796F"]}*/}
+                {/*        orientation="vertical"*/}
+                {/*    />*/}
+                {/*</div>*/}
             </div>
         </div>
     );

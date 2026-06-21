@@ -64,4 +64,42 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
             .ThenBy(dto => dto.Anio)
             .ThenBy(dto => dto.Sexo);
     }
+
+    public async Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaAsync(int? idRegion, int? idDependencia)
+    {
+        var query = db.Matriculas
+            .Include(m => m.ProgramaEducativo)
+                .ThenInclude(p => p!.Dependencia)
+                    .ThenInclude(d => d!.Region)
+            .AsQueryable();
+
+        if (idRegion.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion.Value);
+
+        if (idDependencia.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
+
+        var rows = await query.ToListAsync();
+
+        return rows
+            .GroupBy(m => new
+            {
+                RegionNombre = m.ProgramaEducativo!.Dependencia!.Region!.Name,
+                m.Anio
+            })
+            .SelectMany(g =>
+            {
+                var hombres = g.Sum(m => m.LenguaIndigenaHombres);
+                var mujeres = g.Sum(m => m.LenguaIndigenaMujeres);
+                return new[]
+                {
+                    new HablantesLenguaIndigenaDto(g.Key.RegionNombre, g.Key.Anio, "Hombre", hombres),
+                    new HablantesLenguaIndigenaDto(g.Key.RegionNombre, g.Key.Anio, "Mujer", mujeres),
+                    new HablantesLenguaIndigenaDto(g.Key.RegionNombre, g.Key.Anio, "Todos", hombres + mujeres),
+                };
+            })
+            .OrderBy(dto => dto.Region)
+            .ThenBy(dto => dto.Anio)
+            .ThenBy(dto => dto.Sexo);
+    }
 }
