@@ -74,7 +74,8 @@ export default function MatriculaFormalPage() {
             <div
                 className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-background border-b shadow-md">
                 <Combobox value={region} onValueChange={handleRegionChange}>
-                    <ComboboxInput placeholder={TODAS_REGIONES} className="w-full" readOnly/>
+                    <ComboboxInput placeholder={TODAS_REGIONES} className="w-full" readOnly
+                                   aria-invalid={region !== TODAS_REGIONES}/>
                     <ComboboxContent>
                         <ComboboxList>
                             <ComboboxItem value={TODAS_REGIONES}>{TODAS_REGIONES}</ComboboxItem>
@@ -95,7 +96,8 @@ export default function MatriculaFormalPage() {
                     }}
                 >
                     <ComboboxTrigger
-                        className="flex h-9 w-full items-center justify-between rounded-2xl border border-input bg-background px-3 shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground">
+                        aria-invalid={dependencia !== TODAS_DEPENDENCIAS}
+                        className="flex h-9 w-full items-center justify-between rounded-2xl border border-input bg-background px-3 shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40">
                         <span
                             className={cn("truncate text-sm", dependencia === TODAS_DEPENDENCIAS && "text-muted-foreground")}>
                             {dependencia}
