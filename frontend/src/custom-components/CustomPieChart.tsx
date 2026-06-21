@@ -31,6 +31,8 @@ export type ChartData = {
 export type CustomChartPieProps = {
     queryKey: QueryKey;
     queryFn: (ctx: QueryFunctionContext) => Promise<ChartData>;
+    selectedRegion?: string;
+    selectedDependencia?: string;
 };
 
 type ModalChartProps = {
@@ -40,6 +42,7 @@ type ModalChartProps = {
     values: readonly number[];
     colors?: string[];
     valueFormat?: ValueFormat;
+    formatValue?: FormatValuesMode;
     orientation?: "horizontal" | "vertical";
     mode: ChartMode;
     grid?: { left?: number; right?: number; top?: number; bottom?: number };
@@ -52,6 +55,7 @@ function ModalChart({
                         values,
                         colors,
                         valueFormat,
+                        formatValue,
                         orientation,
                         mode,
                         grid,
@@ -80,14 +84,14 @@ function ModalChart({
                     categories={categories}
                     values={values}
                     valueFormat={valueFormat}
-                    className="h-full"
+                    formatValue={formatValue}
                 />
             )}
         </>
     );
 }
 
-export function CustomPieChart({queryKey, queryFn}: CustomChartPieProps) {
+export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDependencia}: CustomChartPieProps) {
     const {data, isFetching, isError, refetch} = useQuery({queryKey, queryFn});
 
     const [mode, setMode] = useState<ChartMode>("graph");
@@ -123,6 +127,8 @@ export function CustomPieChart({queryKey, queryFn}: CustomChartPieProps) {
         formatValue,
         selectedSex: selectedValues.sex,
         selectedYear: selectedValues.years,
+        selectedRegion,
+        selectedDependencia,
     });
 
     return (
@@ -187,7 +193,7 @@ export function CustomPieChart({queryKey, queryFn}: CustomChartPieProps) {
                         title={title}
                         categories={categories}
                         values={values}
-                        className="h-full"
+                        formatValue={formatValue}
                     />
                 )}
 
@@ -204,6 +210,7 @@ export function CustomPieChart({queryKey, queryFn}: CustomChartPieProps) {
                             footer={info}
                             categories={categories}
                             values={values}
+                            formatValue={formatValue}
                             mode={mode}
                             grid={{left: 0, right: 0, top: 0, bottom: 0}}
                         />

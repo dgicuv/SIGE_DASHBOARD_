@@ -5,6 +5,7 @@ import {rankItem} from "@tanstack/match-sorter-utils";
 import {
     createColumnHelper,
     type FilterFn,
+    flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     useReactTable,
@@ -22,6 +23,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import type {FormatValuesMode} from "@custom/CustomChartMenu.tsx";
 
 type ValueFormat = "number" | "currency";
 
@@ -45,18 +47,20 @@ type DataTableProps = {
     categories: readonly string[];
     values: readonly number[];
     valueFormat?: ValueFormat;
-    className?: string;
+    formatValue?: FormatValuesMode;
 };
 
 export function CustomDataTable({
-                              title,
-                              categories,
-                              values,
-                              valueFormat = "number",
-                          }: DataTableProps) {
+                                    title,
+                                    categories,
+                                    values,
+                                    valueFormat = "number",
+                                    formatValue = "numeric",
+                                }: DataTableProps) {
     const [globalFilter, setGlobalFilter] = useState("");
     const [pendingFormat, setPendingFormat] = useState<"csv" | "xls" | "xlsx" | null>(null);
     const fmt = formatters[valueFormat];
+    const total = useMemo(() => values.reduce((sum, value) => sum + value, 0), [values]);
 
     const data = useMemo<Row[]>(
         () => categories.map((category, i) => ({category, value: values[i]})),
@@ -71,11 +75,13 @@ export function CustomDataTable({
             }),
             columnHelper.accessor("value", {
                 header: "Valor",
-                cell: (info) => fmt.format(info.getValue()),
+                cell: (info) => formatValue === "percent"
+                    ? `${total ? ((info.getValue() / total) * 100).toFixed(1) : "0"}%`
+                    : fmt.format(info.getValue()),
                 enableColumnFilter: false,
             }),
         ],
-        [fmt],
+        [fmt, formatValue, total],
     );
 
     const table = useReactTable({
@@ -96,7 +102,11 @@ export function CustomDataTable({
         const ws = XLSX.utils.json_to_sheet(rows);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Datos");
-        XLSX.writeFile(wb, `${title}.${format}`);
+        const now = new Date();
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+        const timestamp = `${pad(now.getDate())} ${meses[now.getMonth()]} ${now.getFullYear()} - ${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}h`;
+        XLSX.writeFile(wb, `${title}_${timestamp}.${format}`);
     }
 
     return (
@@ -152,7 +162,7 @@ export function CustomDataTable({
                                     key={cell.id}
                                     className={`px-4 py-2${i > 0 ? " text-right" : ""}`}
                                 >
-                                    {String(cell.renderValue())}
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </td>
                             ))}
                         </tr>

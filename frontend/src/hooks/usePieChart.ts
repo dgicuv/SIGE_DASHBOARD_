@@ -17,6 +17,8 @@ type UsePieChartParams = {
     subtitle?: string;
     selectedSex?: string;
     selectedYear?: string;
+    selectedRegion?: string;
+    selectedDependencia?: string;
 };
 
 export function usePieChart({
@@ -30,6 +32,8 @@ export function usePieChart({
                                 subtitle,
                                 selectedSex,
                                 selectedYear,
+                                selectedRegion,
+                                selectedDependencia,
                             }: UsePieChartParams) {
     const {resolvedTheme} = useTheme();
     const isMobile = useIsMobile();
@@ -102,19 +106,22 @@ export function usePieChart({
                     data: pieData,
                 },
             ],
-            graphic: {
-                type: "text",
-                left: "center",
-                top: "50%",
-                style: {
-                    text: `{big|${total.toLocaleString()}}\n{small|${labelLine1}}${labelLine2 ? `\n{small|${labelLine2}}` : ""}`,
-                    rich: {
-                        big: {fontSize: 28, fontWeight: "bold", fill: labelColor, lineHeight: 32},
-                        small: {fontSize: 13, fill: labelColor, lineHeight: 16},
+            graphic: [
+                {
+                    id: "centerTotal",
+                    type: "text",
+                    left: "center",
+                    top: "50%",
+                    style: {
+                        text: `{big|${total.toLocaleString()}}\n{small|${labelLine1}}${labelLine2 ? `\n{small|${labelLine2}}` : ""}`,
+                        rich: {
+                            big: {fontSize: 28, fontWeight: "bold", fill: labelColor, lineHeight: 32},
+                            small: {fontSize: 13, fill: labelColor, lineHeight: 16},
+                        },
+                        textAlign: "center",
                     },
-                    textAlign: "center",
                 },
-            },
+            ],
         }),
         [
             colors,
@@ -134,14 +141,27 @@ export function usePieChart({
     );
 
     const exportLabelColor = "#374151";
+    const footerDetail = [
+        selectedRegion && `Región: ${selectedRegion}`,
+        selectedDependencia && `Dependencia: ${selectedDependencia}`,
+    ]
+        .filter(Boolean)
+        .join(" · ");
     const exportExtra: EChartsOption = {
         title: {text: title, left: 0, top: 0, textStyle: {fontSize: 20}},
-        graphic: {
-            type: "text",
-            left: 0,
-            bottom: 0,
-            style: {text: info, fontSize: 13, fill: "#6b7280"},
-        },
+        graphic: [
+            {
+                id: "footerText",
+                type: "text",
+                left: 0,
+                bottom: 0,
+                style: {
+                    text: footerDetail ? `${info}\n${footerDetail}` : info,
+                    fontSize: 13,
+                    fill: "#6b7280",
+                },
+            },
+        ],
         series: [{label: {color: exportLabelColor}}],
     };
 

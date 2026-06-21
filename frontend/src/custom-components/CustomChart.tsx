@@ -81,7 +81,6 @@ function ModalChart({
           categories={categories}
           values={values}
           valueFormat={valueFormat}
-          className="h-full"
         />
       )}
     </>

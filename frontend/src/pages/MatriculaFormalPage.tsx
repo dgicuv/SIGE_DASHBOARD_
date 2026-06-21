@@ -180,6 +180,8 @@ export default function MatriculaFormalPage() {
                             const query = params.size > 0 ? `?${params}` : "";
                             return apiFetch(`/api/v1/matriculaformal/graficas/discapacidad-por-area-academica${query}`, {signal}).then((r) => r.json());
                         }}
+                        selectedRegion={region}
+                        selectedDependencia={dependencia}
                     />
                 </div>
 

@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {Settings} from "lucide-react";
+import {EllipsisVerticalIcon} from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -47,14 +47,15 @@ export function CustomChartMenu({
                                     setIsFullscreen
                                 }: ChartMenuProps) {
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
 
     return (
         <>
-            <DropdownMenu>
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
                 <DropdownMenuTrigger
                     render={(props) => (
-                        <Button {...props} variant="outline" className={"cursor-pointer"}>
-                            <Settings/>
+                        <Button {...props} variant="outline" size={"icon"} className={"cursor-pointer"}>
+                            <EllipsisVerticalIcon/>
                         </Button>
                     )}
                 />
@@ -64,14 +65,20 @@ export function CustomChartMenu({
                         <DropdownMenuCheckboxItem
                             checked={formatValue === "numeric"}
                             className={"cursor-pointer"}
-                            onClick={() => setFormatValue("numeric")}
+                            onClick={() => {
+                                setFormatValue("numeric");
+                                setMenuOpen(false);
+                            }}
                         >
                             Valores numéricos
                         </DropdownMenuCheckboxItem>
                         <DropdownMenuCheckboxItem
                             className={"cursor-pointer"}
                             checked={formatValue === "percent"}
-                            onClick={() => setFormatValue("percent")}
+                            onClick={() => {
+                                setFormatValue("percent");
+                                setMenuOpen(false);
+                            }}
                         >
                             Valores porcentuales
                         </DropdownMenuCheckboxItem>
@@ -79,16 +86,22 @@ export function CustomChartMenu({
                     <DropdownMenuSeparator/>
                     <DropdownMenuGroup>
                         <DropdownMenuCheckboxItem
-
                             checked={mode === "graph"}
-                            onClick={onReset} className={"cursor-pointer"}>
+                            onClick={() => {
+                                onReset?.();
+                                setMenuOpen(false);
+                            }}
+                            className={"cursor-pointer"}>
                             Gráfica
                         </DropdownMenuCheckboxItem>
 
                         <DropdownMenuCheckboxItem
                             className={"cursor-pointer"}
                             checked={mode === "data"}
-                            onClick={() => onModeChange("data")}
+                            onClick={() => {
+                                onModeChange("data");
+                                setMenuOpen(false);
+                            }}
                         >
                             Tabla de datos
                         </DropdownMenuCheckboxItem>

@@ -50,9 +50,13 @@ export function useEChart(option: EChartsOption) {
         }
 
         if (!url) return;
+        const now = new Date();
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+        const timestamp = `${pad(now.getDate())} ${meses[now.getMonth()]} ${now.getFullYear()} - ${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}h`;
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${filename}.png`;
+        a.download = `${filename}_${timestamp}.png`;
         a.click();
     }
 
