@@ -6,25 +6,38 @@ import {fileTimestamp} from "@/lib/utils";
 export function useEChart(option: EChartsOption, exportExtra?: Partial<EChartsOption>) {
     const chartRef = useRef<echarts.ECharts | null>(null);
     const domRef = useRef<HTMLDivElement | null>(null);
+    const resizeObserverRef = useRef<ResizeObserver | null>(null);
     const optionRef = useRef(option);
     optionRef.current = option;
     const handleResize = useRef(() => {
         chartRef.current?.resize();
     });
 
+    // ResizeObserver en vez de (solo) window.resize: el contenedor puede cambiar de
+    // tamaño sin que cambie el viewport (grids responsivos, sidebar, modal de pantalla
+    // completa, fuentes que terminan de cargar), y en esos casos "resize" del window
+    // nunca se dispara.
+    const observeContainer = (node: HTMLDivElement) => {
+        resizeObserverRef.current?.disconnect();
+        const observer = new ResizeObserver(() => handleResize.current());
+        observer.observe(node);
+        resizeObserverRef.current = observer;
+    };
+
     // Callback ref (en vez de useRef simple): cuando el contenedor se mueve entre dos
     // árboles distintos (ej. de la card al modal de pantalla completa), React desmonta y
     // remonta el div, por lo que hay que reinicializar el chart en el nuevo nodo.
     const containerRef = useCallback((node: HTMLDivElement | null) => {
         if (chartRef.current) {
-            window.removeEventListener("resize", handleResize.current);
+            resizeObserverRef.current?.disconnect();
+            resizeObserverRef.current = null;
             chartRef.current.dispose();
             chartRef.current = null;
         }
         domRef.current = node;
         if (node && node.clientWidth) {
             chartRef.current = echarts.init(node);
-            window.addEventListener("resize", handleResize.current);
+            observeContainer(node);
             chartRef.current.setOption({...optionRef.current, animation: false}, {notMerge: false});
         }
     }, []);
@@ -32,7 +45,8 @@ export function useEChart(option: EChartsOption, exportExtra?: Partial<EChartsOp
     // Cleanup on unmount
     useEffect(() => {
         return () => {
-            window.removeEventListener("resize", handleResize.current);
+            resizeObserverRef.current?.disconnect();
+            resizeObserverRef.current = null;
             chartRef.current?.dispose();
             chartRef.current = null;
         };
@@ -45,7 +59,7 @@ export function useEChart(option: EChartsOption, exportExtra?: Partial<EChartsOp
 
         if (!chartRef.current) {
             chartRef.current = echarts.init(container);
-            window.addEventListener("resize", handleResize.current);
+            observeContainer(container);
         }
 
         chartRef.current.setOption({...option, animation: false}, {notMerge: false});

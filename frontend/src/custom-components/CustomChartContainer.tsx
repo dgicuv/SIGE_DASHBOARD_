@@ -2,7 +2,7 @@ import {Item} from "@/components/ui/item";
 import * as React from "react";
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {InfoIcon, XIcon} from "lucide-react";
+import {InfoIcon} from "lucide-react";
 
 type ChartItemProps = {
     footer: string
@@ -15,7 +15,7 @@ type ChartItemProps = {
 
 export function CustomChartContainer({action, filter, children, footer, isFullscreen, onClose}: ChartItemProps) {
     return (
-        <Item variant="default" className={`flex flex-col bg-accent p-0 gap-0 ${isFullscreen ? "h-full" : "h-140"}`}>
+        <Item variant="default" className={`flex flex-col flex-nowrap bg-accent p-0 gap-0 ${isFullscreen ? "h-full" : "h-140"}`}>
 
             <div className="w-full flex h-[48px] gap-2 p-2  items-center">
                 <div className={"flex grow gap-1"}>
@@ -26,7 +26,7 @@ export function CustomChartContainer({action, filter, children, footer, isFullsc
                     {action && <>{action}</>}
                 </div>
                 {isFullscreen && (
-                    <Button variant="default"  onClick={onClose} className="cursor-pointer">
+                    <Button variant="default" onClick={onClose} className="cursor-pointer">
                         Cerrar
                     </Button>
                 )}

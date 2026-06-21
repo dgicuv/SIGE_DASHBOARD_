@@ -18,7 +18,7 @@ export function CustomModalChart({isFullscreen, onOpenChange, children}: CustomM
         <Dialog open={isFullscreen} onOpenChange={onOpenChange}>
             <DialogContent
                 className={cn(
-                    "w-[95vw] h-[95vh] max-w-[95vw] sm:max-w-[95vw] overflow-hidden rounded-3xl! p-0"
+                    "flex flex-col w-[95vw] h-[95vh] max-w-[95vw] sm:max-w-[95vw] overflow-hidden rounded-3xl! p-0"
                 )}
                 showCloseButton={false}
 
