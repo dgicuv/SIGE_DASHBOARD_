@@ -3,7 +3,7 @@ import type {EChartsOption} from "echarts";
 import * as echarts from "echarts";
 import {fileTimestamp} from "@/lib/utils";
 
-export function useEChart(option: EChartsOption) {
+export function useEChart(option: EChartsOption, exportExtra?: Partial<EChartsOption>) {
     const containerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<echarts.ECharts | null>(null);
     const handleResize = useRef(() => {
@@ -33,7 +33,7 @@ export function useEChart(option: EChartsOption) {
         chartRef.current.resize();
     }, [option]);
 
-    function downloadImage(filename: string, exportExtra?: Partial<EChartsOption>) {
+    function downloadImage(filename: string) {
         if (!chartRef.current) return;
 
         if (exportExtra) {

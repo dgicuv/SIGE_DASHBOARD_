@@ -53,6 +53,31 @@ export function usePieChart({
         [filteredData],
     );
 
+    const centerTotalGraphic = useMemo(
+        () => ({
+            id: "centerTotal",
+            type: "text" as const,
+            left: "center",
+            top: "50%",
+            style: {
+                text: `{big|${total.toLocaleString()}}\n{small|${labelLine1}}${labelLine2 ? `\n{small|${labelLine2}}` : ""}`,
+                rich: {
+                    big: {fontSize: 28, fontWeight: "bold", fill: labelColor, lineHeight: 32},
+                    small: {fontSize: 13, fill: labelColor, lineHeight: 16},
+                },
+                textAlign: "center" as const,
+            },
+        }),
+        [total, labelLine1, labelLine2, labelColor],
+    );
+
+    const subtext = useMemo(
+        () => [`Total: ${total.toLocaleString()}`, subtitle, `Sexo: ${selectedGenero}`, `Año: ${selectedAnio}`]
+            .filter(Boolean)
+            .join(" · "),
+        [total, subtitle, selectedGenero, selectedAnio],
+    );
+
     const option = useMemo<EChartsOption>(
         () => ({
             tooltip: {
@@ -69,9 +94,7 @@ export function usePieChart({
             title: title
                 ? {
                     text: title,
-                    subtext: [`Total: ${total.toLocaleString()}`, subtitle, `Sexo: ${selectedGenero}`, `Año: ${selectedAnio}`]
-                        .filter(Boolean)
-                        .join(" · "),
+                    subtext,
                     left: "center",
                     top: 0,
                     textStyle: {color: labelColor, fontSize: 14},
@@ -106,37 +129,18 @@ export function usePieChart({
                     data: pieData,
                 },
             ],
-            graphic: [
-                {
-                    id: "centerTotal",
-                    type: "text",
-                    left: "center",
-                    top: "50%",
-                    style: {
-                        text: `{big|${total.toLocaleString()}}\n{small|${labelLine1}}${labelLine2 ? `\n{small|${labelLine2}}` : ""}`,
-                        rich: {
-                            big: {fontSize: 28, fontWeight: "bold", fill: labelColor, lineHeight: 32},
-                            small: {fontSize: 13, fill: labelColor, lineHeight: 16},
-                        },
-                        textAlign: "center",
-                    },
-                },
-            ],
+            graphic: [centerTotalGraphic],
         }),
         [
             colors,
             filteredData,
             pieData,
-            total,
             labelColor,
-            labelLine1,
-            labelLine2,
             title,
-            subtitle,
-            selectedGenero,
-            selectedAnio,
+            subtext,
             formatValue,
             isMobile,
+            centerTotalGraphic,
         ],
     );
 
@@ -147,9 +151,38 @@ export function usePieChart({
     ]
         .filter(Boolean)
         .join(" · ");
+    const exportSubtext = [
+        subtext,
+        info,
+        selectedRegion && `Región: ${selectedRegion}`,
+        selectedDependencia && `Dependencia: ${selectedDependencia}`,
+    ]
+        .filter(Boolean)
+        .join("\n");
     const exportExtra: EChartsOption = {
-        title: {text: title, left: 0, top: 0, textStyle: {fontSize: 20}},
+        title: {
+            text: title,
+            subtext: exportSubtext,
+            left: 0,
+            top: 0,
+            textStyle: {fontSize: 20, color: exportLabelColor},
+            subtextStyle: {color: exportLabelColor, fontSize: 8, lineHeight: 13},
+        },
+        legend: {textStyle: {color: exportLabelColor}},
+        // Incluye centerTotalGraphic de nuevo (con colores fijos para export): el merge de
+        // ECharts por id en "graphic" no garantiza conservar elementos previos, así que se
+        // reenvía la lista completa.
         graphic: [
+            {
+                ...centerTotalGraphic,
+                style: {
+                    ...centerTotalGraphic.style,
+                    rich: {
+                        big: {...centerTotalGraphic.style.rich.big, fill: exportLabelColor},
+                        small: {...centerTotalGraphic.style.rich.small, fill: exportLabelColor},
+                    },
+                },
+            },
             {
                 id: "footerText",
                 type: "text",
@@ -165,10 +198,10 @@ export function usePieChart({
         series: [{label: {color: exportLabelColor}}],
     };
 
-    const {containerRef, downloadImage} = useEChart(option);
+    const {containerRef, downloadImage} = useEChart(option, exportExtra);
 
     return {
         containerRef,
-        downloadImage: () => downloadImage(title, exportExtra),
+        downloadImage: () => downloadImage(title),
     };
 }

@@ -45,6 +45,7 @@ const columnHelper = createColumnHelper<Row>();
 
 type DataTableProps = {
     title: string;
+    subtext?: string;
     categories: readonly string[];
     values: readonly number[];
     valueFormat?: ValueFormat;
@@ -53,6 +54,7 @@ type DataTableProps = {
 
 export function CustomDataTable({
                                     title,
+                                    subtext,
                                     categories,
                                     values,
                                     valueFormat = "number",
@@ -96,11 +98,9 @@ export function CustomDataTable({
     });
 
     function exportData(format: "csv" | "xls" | "xlsx") {
-        const rows = data.map((r) => ({
-            Category: r.category,
-            Valor: r.value,
-        }));
-        const ws = XLSX.utils.json_to_sheet(rows);
+        const headerRows = [[title], ...(subtext ? [[subtext], []] : [])];
+        const dataRows = [["Category", "Valor"], ...data.map((r) => [r.category, r.value])];
+        const ws = XLSX.utils.aoa_to_sheet([...headerRows, ...dataRows]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Datos");
         XLSX.writeFile(wb, `${title}_${fileTimestamp()}.${format}`);

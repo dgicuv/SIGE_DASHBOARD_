@@ -89,10 +89,10 @@ export function useBarLineChart({
     series: [{ label: { color: exportLabelColor } }],
   };
 
-  const { containerRef, downloadImage } = useEChart(option);
+  const { containerRef, downloadImage } = useEChart(option, exportExtra);
 
   return {
     containerRef,
-    downloadImage: () => downloadImage(title, exportExtra),
+    downloadImage: () => downloadImage(title),
   };
 }

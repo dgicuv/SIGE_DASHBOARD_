@@ -37,6 +37,7 @@ export type CustomChartPieProps = {
 
 type ModalChartProps = {
     title: string;
+    subtext?: string;
     footer: string;
     categories: readonly string[];
     values: readonly number[];
@@ -50,6 +51,7 @@ type ModalChartProps = {
 
 function ModalChart({
                         title,
+                        subtext,
                         footer,
                         categories,
                         values,
@@ -81,6 +83,7 @@ function ModalChart({
             {mode === "data" && (
                 <CustomDataTable
                     title={title}
+                    subtext={subtext}
                     categories={categories}
                     values={values}
                     valueFormat={valueFormat}
@@ -118,6 +121,21 @@ export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDepen
 
     const categories = filteredRows.map((d) => d.areaAcademica);
     const values = filteredRows.map((d) => d.total);
+
+    const total = useMemo(() => values.reduce((sum, v) => sum + v, 0), [values]);
+    const subtext = useMemo(
+        () => [
+            `Total: ${total.toLocaleString()}`,
+            info,
+            selectedValues.sex && `Sexo: ${selectedValues.sex}`,
+            selectedValues.years && `Año: ${selectedValues.years}`,
+            selectedRegion && `Región: ${selectedRegion}`,
+            selectedDependencia && `Dependencia: ${selectedDependencia}`,
+        ]
+            .filter(Boolean)
+            .join(" · "),
+        [total, info, selectedValues.sex, selectedValues.years, selectedRegion, selectedDependencia],
+    );
 
     const {containerRef, downloadImage} = usePieChart({
         title,
@@ -191,6 +209,7 @@ export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDepen
                 {hasData && mode === "data" && (
                     <CustomDataTable
                         title={title}
+                        subtext={subtext}
                         categories={categories}
                         values={values}
                         formatValue={formatValue}
@@ -207,6 +226,7 @@ export function CustomPieChart({queryKey, queryFn, selectedRegion, selectedDepen
                     <div className="flex-1 min-h-0 overflow-auto p-8">
                         <ModalChart
                             title={title}
+                            subtext={subtext}
                             footer={info}
                             categories={categories}
                             values={values}
