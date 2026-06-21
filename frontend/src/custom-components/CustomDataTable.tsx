@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
+import {fileTimestamp} from "@/lib/utils";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu";
 import {
     AlertDialog,
@@ -102,11 +103,7 @@ export function CustomDataTable({
         const ws = XLSX.utils.json_to_sheet(rows);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Datos");
-        const now = new Date();
-        const pad = (n: number) => String(n).padStart(2, "0");
-        const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-        const timestamp = `${pad(now.getDate())} ${meses[now.getMonth()]} ${now.getFullYear()} - ${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}h`;
-        XLSX.writeFile(wb, `${title}_${timestamp}.${format}`);
+        XLSX.writeFile(wb, `${title}_${fileTimestamp()}.${format}`);
     }
 
     return (

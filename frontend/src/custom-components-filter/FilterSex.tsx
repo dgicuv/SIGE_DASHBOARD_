@@ -11,7 +11,12 @@ export function FilterSex({setSex, availableSex, selectedSex}: FilterSexProps) {
     return (
         <>
             <Combobox value={selectedSex} onValueChange={(val) => setSex(val)}>
-                <ComboboxInput placeholder="Sexo" className="w-40" readOnly/>
+                <ComboboxInput
+                    placeholder="Sexo"
+                    className="w-40"
+                    readOnly
+                    aria-invalid={selectedSex !== availableSex[0]}
+                />
                 <ComboboxContent>
                     <ComboboxList>
                         {availableSex.map((g) => (
