@@ -4,7 +4,7 @@ import {useBarLineChart} from "@/hooks/useBarLineChart";
 import {Button} from "@/components/ui/button";
 import {Spinner} from "@/components/ui/spinner";
 import {Dialog, DialogContent, DialogHeader, DialogTitle,} from "@/components/ui/dialog";
-import {DataTable} from "@custom/DataTable";
+import {CustomDataTable} from "@custom/CustomDataTable.tsx";
 import {CustomChartContainer} from "@custom/CustomChartContainer.tsx";
 import {type ChartMode, CustomChartMenu, type FormatValuesMode} from "@custom/CustomChartMenu.tsx";
 import {CustomChartFilters} from "@/custom-components-filter/CustomChartFilters.tsx";
@@ -75,7 +75,7 @@ function ModalChart({
                 className={`w-full h-full${mode === "data" ? " hidden" : ""}`}
             />
             {mode === "data" && (
-                <DataTable
+                <CustomDataTable
                     title={title}
                     categories={categories}
                     values={values}
@@ -177,14 +177,13 @@ export function CustomPieChart({queryKey, queryFn}: CustomChartPieProps) {
                     </div>
                 )}
 
-                {/* Siempre en el DOM para que useEChart inicialice en el primer render */}
                 <div
                     ref={containerRef}
-                    className={`w-full h-80${(!hasData || mode === "data") ? " hidden" : ""}`}
+                    className={`w-full p-4 h-full ${(!hasData || mode === "data") ? " hidden" : ""}`}
                 />
 
                 {hasData && mode === "data" && (
-                    <DataTable
+                    <CustomDataTable
                         title={title}
                         categories={categories}
                         values={values}

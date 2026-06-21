@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { CardGraph, ChartMenu } from "@custom/CardGraph";
 import type { ChartMode } from "@custom/CardGraph";
-import { DataTable } from "@custom/DataTable";
+import { CustomDataTable } from "@custom/CustomDataTable.tsx";
 
 type ValueFormat = "number" | "currency";
 
@@ -76,7 +76,7 @@ function ModalChart({
         className={`w-full h-full${mode === "data" ? " hidden" : ""}`}
       />
       {mode === "data" && (
-        <DataTable
+        <CustomDataTable
           title={title}
           categories={categories}
           values={values}
@@ -166,7 +166,7 @@ export function CustomChart({ queryKey, queryFn, orientation, colors }: CustomCh
         />
 
         {hasData && mode === "data" && (
-          <DataTable
+          <CustomDataTable
             title={title}
             categories={data.categories}
             values={data.values}

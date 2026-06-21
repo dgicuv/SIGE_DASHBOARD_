@@ -12,7 +12,7 @@ type UsePieChartParams = {
     categories: readonly string[];
     values: readonly number[];
     colors?: string[];
-    formatValue?: FormatValuesMode;
+    formatValue: FormatValuesMode;
     label?: string | [string, string];
     subtitle?: string;
     selectedSex?: string;
@@ -25,7 +25,7 @@ export function usePieChart({
                                 categories,
                                 values,
                                 colors = [...chartConfig.colors],
-                                formatValue = "numeric",
+                                formatValue,
                                 label = "Total",
                                 subtitle,
                                 selectedSex,
@@ -35,7 +35,6 @@ export function usePieChart({
     const isMobile = useIsMobile();
     const labelColor = resolvedTheme === "dark" ? "#e4e4e7" : "#52525b";
     const [labelLine1, labelLine2] = Array.isArray(label) ? label : [label, undefined];
-    const esPorcentaje = formatValue === "percent";
     const selectedGenero = selectedSex;
     const selectedAnio = selectedYear;
 
@@ -52,7 +51,16 @@ export function usePieChart({
 
     const option = useMemo<EChartsOption>(
         () => ({
-            tooltip: {trigger: "item", show: true, formatter: esPorcentaje ? "{b}: {d}%" : "{b}: {c}"},
+            tooltip: {
+                trigger: "item",
+                show: true,
+                formatter: (params: unknown) => {
+                    const p = params as { name: string; value: number; percent: number };
+                    return formatValue === "percent"
+                        ? `${p.name}: ${p.percent}% (${p.value.toLocaleString()})`
+                        : `${p.name}: ${p.value.toLocaleString()} (${p.percent}%)`;
+                },
+            },
             color: colors,
             title: title
                 ? {
@@ -61,7 +69,7 @@ export function usePieChart({
                         .filter(Boolean)
                         .join(" · "),
                     left: "center",
-                    top: 8,
+                    top: 0,
                     textStyle: {color: labelColor, fontSize: 14},
                     subtextStyle: {color: labelColor, fontSize: 12},
                 }
@@ -82,13 +90,13 @@ export function usePieChart({
                     radius: isMobile ? ["0%", "38%"] : ["0%", "50%"],
                     center: ["50%", "50%"],
                     avoidLabelOverlap: true,
-                    stillShowZeroSum: false,
+                    stillShowZeroSum: true,
                     label: {
                         show: true,
                         position: "outside",
                         color: labelColor,
                         fontSize: 13,
-                        formatter: esPorcentaje ? "{d}%" : "{c}",
+                        formatter: formatValue === "percent" ? "{d}%" : "{c}",
                     },
                     labelLine: {show: true},
                     data: pieData,
@@ -97,7 +105,7 @@ export function usePieChart({
             graphic: {
                 type: "text",
                 left: "center",
-                top: "52%",
+                top: "50%",
                 style: {
                     text: `{big|${total.toLocaleString()}}\n{small|${labelLine1}}${labelLine2 ? `\n{small|${labelLine2}}` : ""}`,
                     rich: {
@@ -120,7 +128,7 @@ export function usePieChart({
             subtitle,
             selectedGenero,
             selectedAnio,
-            esPorcentaje,
+            formatValue,
             isMobile,
         ],
     );
