@@ -30,6 +30,7 @@ type ChartMenuProps = {
     onReset?: () => void;
     mode: ChartMode;
     onModeChange: (mode: ChartMode) => void;
+    allowedModes?: ChartMode[];
     formatValue: FormatValuesMode
     onDownload: () => void;
     setIsFullscreen: () => void;
@@ -40,6 +41,7 @@ export function CustomChartMenu({
                                     mode,
                                     title,
                                     onModeChange,
+                                    allowedModes = ["graph", "data"],
                                     formatValue,
                                     setFormatValue,
                                     onReset,
@@ -83,30 +85,37 @@ export function CustomChartMenu({
                             Valores porcentuales
                         </DropdownMenuCheckboxItem>
                     </DropdownMenuGroup>
-                    <DropdownMenuSeparator/>
-                    <DropdownMenuGroup>
-                        <DropdownMenuCheckboxItem
-                            checked={mode === "graph"}
-                            onClick={() => {
-                                onReset?.();
-                                setMenuOpen(false);
-                            }}
-                            className={"cursor-pointer"}>
-                            Gráfica
-                        </DropdownMenuCheckboxItem>
+                    {allowedModes.length > 1 && (
+                        <>
+                            <DropdownMenuSeparator/>
+                            <DropdownMenuGroup>
+                                {allowedModes.includes("graph") && (
+                                    <DropdownMenuCheckboxItem
+                                        checked={mode === "graph"}
+                                        onClick={() => {
+                                            onReset?.();
+                                            setMenuOpen(false);
+                                        }}
+                                        className={"cursor-pointer"}>
+                                        Gráfica
+                                    </DropdownMenuCheckboxItem>
+                                )}
 
-                        <DropdownMenuCheckboxItem
-                            className={"cursor-pointer"}
-                            checked={mode === "data"}
-                            onClick={() => {
-                                onModeChange("data");
-                                setMenuOpen(false);
-                            }}
-                        >
-                            Tabla de datos
-                        </DropdownMenuCheckboxItem>
-
-                    </DropdownMenuGroup>
+                                {allowedModes.includes("data") && (
+                                    <DropdownMenuCheckboxItem
+                                        className={"cursor-pointer"}
+                                        checked={mode === "data"}
+                                        onClick={() => {
+                                            onModeChange("data");
+                                            setMenuOpen(false);
+                                        }}
+                                    >
+                                        Tabla de datos
+                                    </DropdownMenuCheckboxItem>
+                                )}
+                            </DropdownMenuGroup>
+                        </>
+                    )}
                     <DropdownMenuSeparator/>
                     <DropdownMenuGroup>
                         <DropdownMenuItem
@@ -117,7 +126,7 @@ export function CustomChartMenu({
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => setConfirmOpen(true)}
-                            disabled={mode === "data"}
+                            disabled={mode === "data" || !allowedModes.includes("graph")}
                             className={"cursor-pointer"}
                         >
                             Descargar imagen

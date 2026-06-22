@@ -60,9 +60,9 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
                     new DiscapacidadPorAreaAcademicaDto(g.Key.AreaNombre, g.Key.Anio, "Todos", hombres + mujeres),
                 };
             })
-            .OrderBy(dto => dto.AreaAcademica)
-            .ThenBy(dto => dto.Anio)
-            .ThenBy(dto => dto.Sexo);
+            .OrderBy(dto => dto.GroupBy)
+            .ThenBy(dto => dto.Year)
+            .ThenBy(dto => dto.Sex);
     }
 
     public async Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaAsync(int? idRegion, int? idDependencia)
@@ -80,11 +80,14 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
             query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
 
         var rows = await query.ToListAsync();
+        var agruparPorDependencia = idRegion.HasValue;
 
         return rows
             .GroupBy(m => new
             {
-                RegionNombre = m.ProgramaEducativo!.Dependencia!.Region!.Name,
+                GrupoNombre = agruparPorDependencia
+                    ? $"{m.ProgramaEducativo!.Dependencia!.Clave} - {m.ProgramaEducativo!.Dependencia!.Name}"
+                    : m.ProgramaEducativo!.Dependencia!.Region!.Name,
                 m.Anio
             })
             .SelectMany(g =>
@@ -93,13 +96,56 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
                 var mujeres = g.Sum(m => m.LenguaIndigenaMujeres);
                 return new[]
                 {
-                    new HablantesLenguaIndigenaDto(g.Key.RegionNombre, g.Key.Anio, "Hombre", hombres),
-                    new HablantesLenguaIndigenaDto(g.Key.RegionNombre, g.Key.Anio, "Mujer", mujeres),
-                    new HablantesLenguaIndigenaDto(g.Key.RegionNombre, g.Key.Anio, "Todos", hombres + mujeres),
+                    new HablantesLenguaIndigenaDto(g.Key.GrupoNombre, g.Key.Anio, "Hombre", hombres),
+                    new HablantesLenguaIndigenaDto(g.Key.GrupoNombre, g.Key.Anio, "Mujer", mujeres),
+                    new HablantesLenguaIndigenaDto(g.Key.GrupoNombre, g.Key.Anio, "Todos", hombres + mujeres),
                 };
             })
-            .OrderBy(dto => dto.Region)
-            .ThenBy(dto => dto.Anio)
-            .ThenBy(dto => dto.Sexo);
+            .OrderBy(dto => dto.GroupBy)
+            .ThenBy(dto => dto.Year)
+            .ThenBy(dto => dto.Sex);
+    }
+
+    public async Task<IEnumerable<MatriculaPorProgramaEducativoDto>> GetMatriculaPorProgramaEducativoAsync(int? idRegion, int? idDependencia)
+    {
+        var query = db.Matriculas
+            .Include(m => m.ProgramaEducativo)
+                .ThenInclude(p => p!.Dependencia)
+            .Include(m => m.ProgramaEducativo)
+                .ThenInclude(p => p!.Nivel)
+            .Include(m => m.ProgramaEducativo)
+                .ThenInclude(p => p!.Modalidad)
+            .AsQueryable();
+
+        if (idRegion.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion.Value);
+
+        if (idDependencia.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
+
+        var rows = await query.ToListAsync();
+
+        return rows
+            .GroupBy(m => new
+            {
+                ProgramaNombre = m.ProgramaEducativo!.Name,
+                NivelNombre = m.ProgramaEducativo!.Nivel!.Name,
+                ModalidadNombre = m.ProgramaEducativo!.Modalidad!.Name,
+                m.Anio
+            })
+            .SelectMany(g =>
+            {
+                var hombres = g.Sum(m => m.MatriculaHombres);
+                var mujeres = g.Sum(m => m.MatriculaMujeres);
+                return new[]
+                {
+                    new MatriculaPorProgramaEducativoDto(g.Key.ProgramaNombre, g.Key.Anio, "Hombre", hombres, g.Key.NivelNombre, g.Key.ModalidadNombre),
+                    new MatriculaPorProgramaEducativoDto(g.Key.ProgramaNombre, g.Key.Anio, "Mujer", mujeres, g.Key.NivelNombre, g.Key.ModalidadNombre),
+                    new MatriculaPorProgramaEducativoDto(g.Key.ProgramaNombre, g.Key.Anio, "Todos", hombres + mujeres, g.Key.NivelNombre, g.Key.ModalidadNombre),
+                };
+            })
+            .OrderBy(dto => dto.GroupBy)
+            .ThenBy(dto => dto.Year)
+            .ThenBy(dto => dto.Sex);
     }
 }

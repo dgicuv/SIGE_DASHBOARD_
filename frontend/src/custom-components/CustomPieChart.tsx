@@ -13,8 +13,8 @@ import {type ChartColorThemeId, chartColorThemes} from "@/config/chartConfig";
 
 export type PieDatum = {
     name: string;
-    anio: number;
-    sexo: string;
+    year: number;
+    sex: string;
     total: number;
 };
 
@@ -32,32 +32,40 @@ export type CustomChartPieProps = {
     selectedRegion?: string;
     selectedDependencia?: string;
     colorTheme?: ChartColorThemeId;
+    /** Modos permitidos cuando hay una dependencia seleccionada (tiene prioridad sobre `allowedModesRegion`). */
+    allowedModesDependencia?: ChartMode[];
+    /** Modos permitidos cuando hay una región seleccionada y ninguna dependencia. */
+    allowedModesRegion?: ChartMode[];
+    /** Modos permitidos cuando no hay ni región ni dependencia seleccionada. */
+    allowedModesDefault?: ChartMode[];
+    /** Indica si actualmente hay una dependencia seleccionada. */
+    isDependenciaSelected?: boolean;
+    /** Indica si actualmente hay una región seleccionada. */
+    isRegionSelected?: boolean;
 };
 
-/**
- * Renames `nameField` from each raw backend row into `name`, the field PieDatum expects.
- * Use inside a queryFn to adapt an endpoint's grouping column (e.g. "region", "areaAcademica").
- */
-export function mapPieDataField(
-    raw: Omit<ChartData, "data"> & {data: Record<string, unknown>[]},
-    nameField: string,
-): ChartData {
-    return {
-        ...raw,
-        data: raw.data.map(({[nameField]: name, ...rest}) => ({...rest, name})) as PieDatum[],
-    };
-}
-
 export function CustomPieChart({
-                                     queryKey,
-                                     queryFn,
-                                     selectedRegion,
-                                     selectedDependencia,
-                                     colorTheme = "default",
-                                 }: CustomChartPieProps) {
+                                   queryKey,
+                                   queryFn,
+                                   selectedRegion,
+                                   selectedDependencia,
+                                   colorTheme = "default",
+                                   allowedModesDependencia = ["graph", "data"],
+                                   allowedModesRegion = ["graph", "data"],
+                                   allowedModesDefault = ["graph", "data"],
+                                   isDependenciaSelected = false,
+                                   isRegionSelected = false,
+                               }: CustomChartPieProps) {
     const {data, isFetching, isError, refetch} = useQuery({queryKey, queryFn});
 
+    const allowedModes = isDependenciaSelected
+        ? allowedModesDependencia
+        : isRegionSelected
+            ? allowedModesRegion
+            : allowedModesDefault;
+
     const [mode, setMode] = useState<ChartMode>("graph");
+    const effectiveMode = allowedModes.includes(mode) ? mode : allowedModes[0] ?? "graph";
     const [formatValue, setFormatValue] = useState<FormatValuesMode>("numeric");
     const [isFullscreen, setIsFullscreen] = useState(false);
     const title = data?.title ?? "";
@@ -68,33 +76,35 @@ export function CustomPieChart({
 
     const filterAccessors = useMemo<Record<string, FilterAccessor<PieDatum>>>(() => ({
         sex: {
-            get: (d) => d.sexo,
+            get: (d) => d.sex,
             sort: (a, b) => (a === "Todos" ? -1 : b === "Todos" ? 1 : a.localeCompare(b)),
         },
         years: {
-            get: (d) => String(d.anio),
+            get: (d) => String(d.year),
             sort: (a, b) => Number(b) - Number(a),
         },
     }), []);
 
     const {availableValues, selectedValues, setFilter, filteredRows} = useChartFilters(rows, filterAccessors);
 
-    const categories = filteredRows.map((d) => d.name);
-    const values = filteredRows.map((d) => d.total);
+    const sortedRows = useMemo(
+        () => [...filteredRows].sort((a, b) => b.total - a.total),
+        [filteredRows],
+    );
+
+    const categories = sortedRows.map((d) => d.name);
+    const values = sortedRows.map((d) => d.total);
 
     const total = useMemo(() => values.reduce((sum, v) => sum + v, 0), [values]);
     const subtext = useMemo(
         () => [
             `Total: ${total.toLocaleString()}`,
-            info,
             selectedValues.sex && `Sexo: ${selectedValues.sex}`,
-            selectedValues.years && `Año: ${selectedValues.years}`,
-            selectedRegion && `Región: ${selectedRegion}`,
-            selectedDependencia && `Dependencia: ${selectedDependencia}`,
+            selectedValues.years && `Año: ${selectedValues.years}`
         ]
             .filter(Boolean)
             .join(" · "),
-        [total, info, selectedValues.sex, selectedValues.years, selectedRegion, selectedDependencia],
+        [total, selectedValues.sex, selectedValues.years],
     );
 
     const {containerRef, downloadImage} = usePieChart({
@@ -133,7 +143,8 @@ export function CustomPieChart({
                             <CustomChartMenu
                                 setIsFullscreen={() => setIsFullscreen(true)}
                                 title={title}
-                                mode={mode}
+                                mode={effectiveMode}
+                                allowedModes={allowedModes}
                                 setFormatValue={setFormatValue}
                                 onModeChange={setMode}
                                 onReset={() => setMode("graph")}
@@ -166,10 +177,10 @@ export function CustomPieChart({
 
                 <div
                     ref={containerRef}
-                    className={`w-full p-4 h-full ${(!hasData || mode === "data") ? " hidden" : ""}`}
+                    className={`w-full p-4 h-full ${(!hasData || effectiveMode === "data") ? " hidden" : ""}`}
                 />
 
-                {hasData && mode === "data" && (
+                {hasData && effectiveMode === "data" && (
                     <CustomDataTable
                         title={title}
                         subtext={subtext}

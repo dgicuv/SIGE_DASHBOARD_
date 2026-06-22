@@ -1,8 +1,8 @@
 namespace SIGE.Dashboard;
 
 public record DiscapacidadPorAreaAcademicaDto(
-    string AreaAcademica,
-    int Anio,
-    string Sexo,
+    string GroupBy,
+    int Year,
+    string Sex,
     int Total
 );

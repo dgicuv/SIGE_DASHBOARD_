@@ -13,10 +13,12 @@ import {
 import {cn} from "@/lib/utils";
 import {StatItem} from "@/components/StatItem";
 import {AccessibilityIcon, GraduationCap, MarsIcon, NonBinary, SpeechIcon, VenusIcon} from "lucide-react";
-import {CustomPieChart, mapPieDataField} from "@custom/CustomPieChart.tsx";
+import {CustomPieChart} from "@custom/CustomPieChart.tsx";
+import {mapPieDataField} from "@/lib/pieChartUtils.ts";
 
 const TODAS_REGIONES = "Todas las Regiones";
 const TODAS_DEPENDENCIAS = "Todas las Dependencias";
+
 
 type Estadistica = {
     totalMatricula: number;
@@ -50,6 +52,9 @@ export default function MatriculaFormalPage() {
         dependencia === TODAS_DEPENDENCIAS
             ? null
             : dependencias.find((d) => `${d.clave} - ${d.name} - ${d.regionName}` === dependencia)?.id ?? null;
+
+    const isDependenciaSelected = selectedDependenciaId !== null;
+    const isRegionSelected = selectedRegionId !== null;
 
     const {data: estadistica, isLoading: estadisticaLoading} = useQuery<Estadistica>({
         queryKey: ["matricula", "estadistica", selectedRegionId, selectedDependenciaId],
@@ -181,11 +186,40 @@ export default function MatriculaFormalPage() {
                             const query = params.size > 0 ? `?${params}` : "";
                             return apiFetch(`/api/v1/matriculaformal/graficas/discapacidad-por-area-academica${query}`, {signal})
                                 .then((r) => r.json())
-                                .then((raw) => mapPieDataField(raw, "areaAcademica"));
+                                .then((raw) => mapPieDataField(raw, "groupBy"));
                         }}
                         selectedRegion={region}
                         selectedDependencia={dependencia}
                         colorTheme={"kanagawa"}
+                        allowedModesDefault={["graph", "data"]}
+                        allowedModesRegion={["graph", "data"]}
+                        allowedModesDependencia={["graph", "data"]}
+                        isRegionSelected={isRegionSelected}
+                        isDependenciaSelected={isDependenciaSelected}
+                    />
+                </div>
+
+
+                <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
+                    <CustomPieChart
+                        queryKey={["dashboard", "matricula-por-programa-educativo", selectedRegionId, selectedDependenciaId]}
+                        queryFn={({signal}) => {
+                            const params = new URLSearchParams();
+                            if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
+                            if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
+                            const query = params.size > 0 ? `?${params}` : "";
+                            return apiFetch(`/api/v1/matriculaformal/graficas/matricula-por-programa-educativo${query}`, {signal})
+                                .then((r) => r.json())
+                                .then((raw) => mapPieDataField(raw, "groupBy"));
+                        }}
+                        selectedRegion={region}
+                        selectedDependencia={dependencia}
+                        colorTheme={"kanagawa"}
+                        allowedModesDefault={["data"]}
+                        allowedModesRegion={["data"]}
+                        allowedModesDependencia={["data"]}
+                        isRegionSelected={isRegionSelected}
+                        isDependenciaSelected={isDependenciaSelected}
                     />
                 </div>
 
@@ -200,11 +234,16 @@ export default function MatriculaFormalPage() {
                             const query = params.size > 0 ? `?${params}` : "";
                             return apiFetch(`/api/v1/matriculaformal/graficas/hablantes-lengua-indigena${query}`, {signal})
                                 .then((r) => r.json())
-                                .then((raw) => mapPieDataField(raw, "region"));
+                                .then((raw) => mapPieDataField(raw, "groupBy"));
                         }}
                         selectedRegion={region}
                         selectedDependencia={dependencia}
-                        colorTheme={"monokai"}
+                        colorTheme={"barman"}
+                        allowedModesDefault={["data", "graph"]}
+                        allowedModesRegion={["data"]}
+                        allowedModesDependencia={["data"]}
+                        isRegionSelected={isRegionSelected}
+                        isDependenciaSelected={isDependenciaSelected}
                     />
                 </div>
 

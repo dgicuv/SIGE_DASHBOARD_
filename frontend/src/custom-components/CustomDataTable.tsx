@@ -108,8 +108,13 @@ export function CustomDataTable({
 
     return (
         <div className={`flex flex-col w-full h-full`}>
+            <div className="flex flex-col px-4 pt-2">
+                <span className="text-sm font-medium">{title}</span>
+                {subtext && <span className="text-xs text-muted-foreground">{subtext}</span>}
+            </div>
             <div className="flex items-center gap-2 px-4 py-2 border-b">
                 <div className="relative flex-1">
+
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground"/>
                     <Input
                         value={globalFilter}
