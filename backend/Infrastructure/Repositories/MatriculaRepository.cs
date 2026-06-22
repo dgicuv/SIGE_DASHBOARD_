@@ -128,7 +128,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
         return rows
             .GroupBy(m => new
             {
-                ProgramaNombre = m.ProgramaEducativo!.Name,
+                ProgramaNombre = $"{m.ProgramaEducativo!.Clave} - {m.ProgramaEducativo!.Name}",
                 NivelNombre = m.ProgramaEducativo!.Nivel!.Name,
                 ModalidadNombre = m.ProgramaEducativo!.Modalidad!.Name,
                 m.Anio
