@@ -188,14 +188,12 @@ export default function MatriculaFormalPage() {
                                 .then((r) => r.json())
                                 .then((raw) => mapPieDataField(raw, "groupBy"));
                         }}
-                        selectedRegion={region}
-                        selectedDependencia={dependencia}
+                        selectedRegion={isRegionSelected ? region : undefined}
+                        selectedDependencia={isDependenciaSelected ? dependencia : undefined}
                         colorTheme={"kanagawa"}
                         allowedModesDefault={["graph", "data"]}
                         allowedModesRegion={["graph", "data"]}
                         allowedModesDependencia={["graph", "data"]}
-                        isRegionSelected={isRegionSelected}
-                        isDependenciaSelected={isDependenciaSelected}
                     />
                 </div>
 
@@ -212,14 +210,12 @@ export default function MatriculaFormalPage() {
                                 .then((r) => r.json())
                                 .then((raw) => mapPieDataField(raw, "groupBy"));
                         }}
-                        selectedRegion={region}
-                        selectedDependencia={dependencia}
+                        selectedRegion={isRegionSelected ? region : undefined}
+                        selectedDependencia={isDependenciaSelected ? dependencia : undefined}
                         colorTheme={"kanagawa"}
                         allowedModesDefault={["data"]}
                         allowedModesRegion={["data"]}
                         allowedModesDependencia={["data"]}
-                        isRegionSelected={isRegionSelected}
-                        isDependenciaSelected={isDependenciaSelected}
                     />
                 </div>
 
@@ -236,14 +232,12 @@ export default function MatriculaFormalPage() {
                                 .then((r) => r.json())
                                 .then((raw) => mapPieDataField(raw, "groupBy"));
                         }}
-                        selectedRegion={region}
-                        selectedDependencia={dependencia}
+                        selectedRegion={isRegionSelected ? region : undefined}
+                        selectedDependencia={isDependenciaSelected ? dependencia : undefined}
                         colorTheme={"barman"}
                         allowedModesDefault={["data", "graph"]}
                         allowedModesRegion={["data"]}
                         allowedModesDependencia={["data"]}
-                        isRegionSelected={isRegionSelected}
-                        isDependenciaSelected={isDependenciaSelected}
                     />
                 </div>
 

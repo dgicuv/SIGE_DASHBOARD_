@@ -30,12 +30,14 @@ public class MatriculaFormalController(
             description = "Distribución de matrícula con discapacidad por área académica",
             info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
             filter = new[] { "years", "sex" },
+            columns = Array.Empty<object>(),
+            categoryLabel = "Área Académica",
             data
-            
+
         });
     }
-    
-    
+
+
     [HttpGet("graficas/hablantes-lengua-indigena")]
     public async Task<IActionResult> GetHablantesLenguaIndigena(
         [FromQuery] int? idRegion,
@@ -48,6 +50,8 @@ public class MatriculaFormalController(
             description = "Distribución de matrícula hablante de lengua indígena por área académica",
             info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
             filter = new[] { "years", "sex" },
+            columns = Array.Empty<object>(),
+            categoryLabel = idRegion.HasValue ? "Dependencia" : "Región",
             data
         });
     }
@@ -64,6 +68,12 @@ public class MatriculaFormalController(
             description = "Distribución de matrícula por programa educativo",
             info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
             filter = new[] { "years", "sex", "nivelEducativo", "modalidad" },
+            columns = new[]
+            {
+                new { key = "nivelEducativo", header = "Nivel Educativo" },
+                new { key = "modalidad", header = "Modalidad" },
+            },
+            categoryLabel = "Programa Educativo",
             data
         });
     }

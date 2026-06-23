@@ -16,6 +16,12 @@ export type PieDatum = {
     year: number;
     sex: string;
     total: number;
+    [key: string]: unknown;
+};
+
+export type PieColumn = {
+    key: string;
+    header: string;
 };
 
 export type ChartData = {
@@ -23,6 +29,8 @@ export type ChartData = {
     description: string;
     info: string;
     filter: string[];
+    columns?: PieColumn[];
+    categoryLabel?: string;
     data: PieDatum[];
 };
 
@@ -38,10 +46,6 @@ export type CustomChartPieProps = {
     allowedModesRegion?: ChartMode[];
     /** Modos permitidos cuando no hay ni región ni dependencia seleccionada. */
     allowedModesDefault?: ChartMode[];
-    /** Indica si actualmente hay una dependencia seleccionada. */
-    isDependenciaSelected?: boolean;
-    /** Indica si actualmente hay una región seleccionada. */
-    isRegionSelected?: boolean;
 };
 
 export function CustomPieChart({
@@ -53,10 +57,11 @@ export function CustomPieChart({
                                    allowedModesDependencia = ["graph", "data"],
                                    allowedModesRegion = ["graph", "data"],
                                    allowedModesDefault = ["graph", "data"],
-                                   isDependenciaSelected = false,
-                                   isRegionSelected = false,
                                }: CustomChartPieProps) {
     const {data, isFetching, isError, refetch} = useQuery({queryKey, queryFn});
+
+    const isDependenciaSelected = !!selectedDependencia;
+    const isRegionSelected = !!selectedRegion;
 
     const allowedModes = isDependenciaSelected
         ? allowedModesDependencia
@@ -94,6 +99,15 @@ export function CustomPieChart({
 
     const categories = sortedRows.map((d) => d.name);
     const values = sortedRows.map((d) => d.total);
+
+    const extraColumns = useMemo(
+        () => (data?.columns ?? []).map((col) => ({
+            key: col.key,
+            header: col.header,
+            values: sortedRows.map((d) => String(d[col.key] ?? "")),
+        })),
+        [data?.columns, sortedRows],
+    );
 
     const total = useMemo(() => values.reduce((sum, v) => sum + v, 0), [values]);
     const subtext = useMemo(
@@ -184,8 +198,10 @@ export function CustomPieChart({
                     <CustomDataTable
                         title={title}
                         subtext={subtext}
+                        categoryLabel={data?.categoryLabel}
                         categories={categories}
                         values={values}
+                        extraColumns={extraColumns}
                         formatValue={formatValue}
                     />
                 )}

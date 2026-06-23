@@ -1,5 +1,5 @@
 import {useMemo, useState} from "react";
-import {FileDown, Search} from "lucide-react";
+import {ArrowDown, ArrowUp, ArrowUpDown, FileDown, Search} from "lucide-react";
 import * as XLSX from "xlsx";
 import {rankItem} from "@tanstack/match-sorter-utils";
 import {
@@ -8,6 +8,8 @@ import {
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
+    getSortedRowModel,
+    type SortingState,
     useReactTable,
 } from "@tanstack/react-table";
 import {Input} from "@/components/ui/input";
@@ -28,7 +30,9 @@ import type {FormatValuesMode} from "@custom/CustomChartMenu.tsx";
 
 type ValueFormat = "number" | "currency";
 
-type Row = { category: string; value: number };
+type Row = { category: string; value: number; [key: string]: string | number };
+
+export type ExtraColumn = { key: string; header: string; values: readonly string[] };
 
 const formatters: Record<ValueFormat, Intl.NumberFormat> = {
     number: new Intl.NumberFormat("es-MX"),
@@ -46,8 +50,10 @@ const columnHelper = createColumnHelper<Row>();
 type DataTableProps = {
     title: string;
     subtext?: string;
+    categoryLabel?: string;
     categories: readonly string[];
     values: readonly number[];
+    extraColumns?: readonly ExtraColumn[];
     valueFormat?: ValueFormat;
     formatValue?: FormatValuesMode;
 };
@@ -55,51 +61,70 @@ type DataTableProps = {
 export function CustomDataTable({
                                     title,
                                     subtext,
+                                    categoryLabel = "Categoría",
                                     categories,
                                     values,
+                                    extraColumns = [],
                                     valueFormat = "number",
                                     formatValue = "numeric",
                                 }: DataTableProps) {
     const [globalFilter, setGlobalFilter] = useState("");
+    const [sorting, setSorting] = useState<SortingState>([]);
     const [pendingFormat, setPendingFormat] = useState<"csv" | "xls" | "xlsx" | null>(null);
     const fmt = formatters[valueFormat];
     const total = useMemo(() => values.reduce((sum, value) => sum + value, 0), [values]);
 
     const data = useMemo<Row[]>(
-        () => categories.map((category, i) => ({category, value: values[i]})),
-        [categories, values],
+        () => categories.map((category, i) => {
+            const row: Row = {category, value: values[i]};
+            for (const col of extraColumns) row[col.key] = col.values[i] ?? "";
+            return row;
+        }),
+        [categories, values, extraColumns],
     );
 
     const columns = useMemo(
         () => [
             columnHelper.accessor("category", {
-                header: "Categoría",
+                header: categoryLabel,
                 filterFn: fuzzyFilter,
             }),
+            ...extraColumns.map((col) =>
+                columnHelper.accessor(col.key, {
+                    header: col.header,
+                    cell: (info) => String(info.getValue() ?? ""),
+                    filterFn: fuzzyFilter,
+                })
+            ),
             columnHelper.accessor("value", {
                 header: "Valor",
                 cell: (info) => formatValue === "percent"
-                    ? `${total ? ((info.getValue() / total) * 100).toFixed(1) : "0"}%`
-                    : fmt.format(info.getValue()),
+                    ? `${total ? ((Number(info.getValue()) / total) * 100).toFixed(1) : "0"}%`
+                    : fmt.format(Number(info.getValue())),
                 enableColumnFilter: false,
             }),
         ],
-        [fmt, formatValue, total],
+        [fmt, formatValue, total, extraColumns, categoryLabel],
     );
 
     const table = useReactTable({
         data,
         columns,
-        state: {globalFilter},
+        state: {globalFilter, sorting},
         onGlobalFilterChange: setGlobalFilter,
+        onSortingChange: setSorting,
         globalFilterFn: fuzzyFilter,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
     });
 
     function exportData(format: "csv" | "xls" | "xlsx") {
         const headerRows = [[title], ...(subtext ? [[subtext], []] : [])];
-        const dataRows = [["Category", "Valor"], ...data.map((r) => [r.category, r.value])];
+        const dataRows = [
+            [categoryLabel, ...extraColumns.map((c) => c.header), "Valor"],
+            ...data.map((r) => [r.category, ...extraColumns.map((c) => r[c.key]), r.value]),
+        ];
         const ws = XLSX.utils.aoa_to_sheet([...headerRows, ...dataRows]);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Datos");
@@ -150,7 +175,18 @@ export function CustomDataTable({
                                     key={header.id}
                                     className="sticky top-0 bg-background px-4 py-2 font-medium text-muted-foreground text-left last:text-right"
                                 >
-                                    {header.isPlaceholder ? null : String(header.column.columnDef.header)}
+                                    {header.isPlaceholder ? null : (
+                                        <button
+                                            type="button"
+                                            onClick={header.column.getToggleSortingHandler()}
+                                            className="inline-flex items-center gap-1 cursor-pointer hover:text-foreground"
+                                        >
+                                            {String(header.column.columnDef.header)}
+                                            {header.column.getIsSorted() === "asc" && <ArrowUp className="size-3"/>}
+                                            {header.column.getIsSorted() === "desc" && <ArrowDown className="size-3"/>}
+                                            {!header.column.getIsSorted() && <ArrowUpDown className="size-3 opacity-40"/>}
+                                        </button>
+                                    )}
                                 </th>
                             ))}
                         </tr>
@@ -159,10 +195,10 @@ export function CustomDataTable({
                     <tbody>
                     {table.getRowModel().rows.map((row) => (
                         <tr key={row.id} className="border-b last:border-0 hover:bg-muted/50">
-                            {row.getVisibleCells().map((cell, i) => (
+                            {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
-                                    className={`px-4 py-2${i > 0 ? " text-right" : ""}`}
+                                    className="px-4 py-2 last:text-right"
                                 >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                 </td>
@@ -171,7 +207,7 @@ export function CustomDataTable({
                     ))}
                     {table.getRowModel().rows.length === 0 && (
                         <tr>
-                            <td colSpan={2} className="px-4 py-6 text-center text-muted-foreground text-sm">
+                            <td colSpan={columns.length} className="px-4 py-6 text-center text-muted-foreground text-sm">
                                 Sin resultados
                             </td>
                         </tr>

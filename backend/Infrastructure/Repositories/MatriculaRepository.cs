@@ -65,41 +65,81 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
             .ThenBy(dto => dto.Sex);
     }
 
-    public async Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaAsync(int? idRegion, int? idDependencia)
+    public Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaAsync(int? idRegion, int? idDependencia) =>
+        idRegion.HasValue
+            ? GetHablantesLenguaIndigenaPorDependenciaAsync(idRegion.Value, idDependencia)
+            : GetHablantesLenguaIndigenaPorRegionAsync(idDependencia);
+
+    private async Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaPorDependenciaAsync(int idRegion, int? idDependencia)
     {
         var query = db.Matriculas
-            .Include(m => m.ProgramaEducativo)
-                .ThenInclude(p => p!.Dependencia)
-                    .ThenInclude(d => d!.Region)
+            .Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion)
             .AsQueryable();
-
-        if (idRegion.HasValue)
-            query = query.Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion.Value);
 
         if (idDependencia.HasValue)
             query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
 
-        var rows = await query.ToListAsync();
-        var agruparPorDependencia = idRegion.HasValue;
-
-        return rows
+        var grupos = await query
             .GroupBy(m => new
             {
-                GrupoNombre = agruparPorDependencia
-                    ? $"{m.ProgramaEducativo!.Dependencia!.Clave} - {m.ProgramaEducativo!.Dependencia!.Name}"
-                    : m.ProgramaEducativo!.Dependencia!.Region!.Name,
+                m.ProgramaEducativo!.Dependencia!.Clave,
+                m.ProgramaEducativo!.Dependencia!.Name,
                 m.Anio
             })
+            .Select(g => new
+            {
+                g.Key.Clave,
+                g.Key.Name,
+                g.Key.Anio,
+                Hombres = g.Sum(m => m.LenguaIndigenaHombres),
+                Mujeres = g.Sum(m => m.LenguaIndigenaMujeres)
+            })
+            .ToListAsync();
+
+        return grupos
             .SelectMany(g =>
             {
-                var hombres = g.Sum(m => m.LenguaIndigenaHombres);
-                var mujeres = g.Sum(m => m.LenguaIndigenaMujeres);
+                var grupoNombre = $"{g.Clave} - {g.Name}";
                 return new[]
                 {
-                    new HablantesLenguaIndigenaDto(g.Key.GrupoNombre, g.Key.Anio, "Hombre", hombres),
-                    new HablantesLenguaIndigenaDto(g.Key.GrupoNombre, g.Key.Anio, "Mujer", mujeres),
-                    new HablantesLenguaIndigenaDto(g.Key.GrupoNombre, g.Key.Anio, "Todos", hombres + mujeres),
+                    new HablantesLenguaIndigenaDto(grupoNombre, g.Anio, "Hombre", g.Hombres),
+                    new HablantesLenguaIndigenaDto(grupoNombre, g.Anio, "Mujer", g.Mujeres),
+                    new HablantesLenguaIndigenaDto(grupoNombre, g.Anio, "Todos", g.Hombres + g.Mujeres),
                 };
+            })
+            .OrderBy(dto => dto.GroupBy)
+            .ThenBy(dto => dto.Year)
+            .ThenBy(dto => dto.Sex);
+    }
+
+    private async Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaPorRegionAsync(int? idDependencia)
+    {
+        var query = db.Matriculas.AsQueryable();
+
+        if (idDependencia.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
+
+        var grupos = await query
+            .GroupBy(m => new
+            {
+                m.ProgramaEducativo!.Dependencia!.Region!.Name,
+                m.Anio
+            })
+            .Select(g => new
+            {
+                g.Key.Name,
+                g.Key.Anio,
+                Hombres = g.Sum(m => m.LenguaIndigenaHombres),
+                Mujeres = g.Sum(m => m.LenguaIndigenaMujeres)
+            })
+            .ToListAsync();
+
+        return grupos
+            .SelectMany(g => new[]
+            {
+                new HablantesLenguaIndigenaDto(g.Name, g.Anio, "Hombre", g.Hombres),
+                new HablantesLenguaIndigenaDto(g.Name, g.Anio, "Mujer", g.Mujeres),
+                new HablantesLenguaIndigenaDto(g.Name, g.Anio, "Todos", g.Hombres + g.Mujeres),
             })
             .OrderBy(dto => dto.GroupBy)
             .ThenBy(dto => dto.Year)
