@@ -79,7 +79,7 @@ export function CustomPieChart({
 
     const rows = data?.data ?? [];
 
-    const filterAccessors = useMemo<Record<string, FilterAccessor<PieDatum>>>(() => ({
+    const allFilterAccessors = useMemo<Record<string, FilterAccessor<PieDatum>>>(() => ({
         sex: {
             get: (d) => d.sex,
             sort: (a, b) => (a === "Todos" ? -1 : b === "Todos" ? 1 : a.localeCompare(b)),
@@ -88,9 +88,26 @@ export function CustomPieChart({
             get: (d) => String(d.year),
             sort: (a, b) => Number(b) - Number(a),
         },
+        nivelEducativo: {
+            get: (d) => String(d.nivelEducativo ?? ""),
+            sort: (a, b) => (a === "Todos" ? -1 : b === "Todos" ? 1 : a.localeCompare(b)),
+            allowAll: true,
+        },
+        modalidad: {
+            get: (d) => String(d.modalidad ?? ""),
+            sort: (a, b) => (a === "Todos" ? -1 : b === "Todos" ? 1 : a.localeCompare(b)),
+            allowAll: true,
+        },
     }), []);
 
-    const {availableValues, selectedValues, setFilter, filteredRows} = useChartFilters(rows, filterAccessors);
+    const filterAccessors = useMemo(
+        () => Object.fromEntries(
+            Object.entries(allFilterAccessors).filter(([key]) => (data?.filter ?? []).includes(key))
+        ),
+        [allFilterAccessors, data?.filter],
+    );
+
+    const {availableValues, selectedValues, setFilter, filteredRows, hasActiveFilters} = useChartFilters(rows, filterAccessors);
 
     const sortedRows = useMemo(
         () => [...filteredRows].sort((a, b) => b.total - a.total),
@@ -140,6 +157,7 @@ export function CustomPieChart({
                 isFullscreen={isFullscreen}
                 onClose={() => setIsFullscreen(false)}
                 footer={hasData ? info : ""}
+                hasActiveFilters={hasActiveFilters}
                 filter={hasData ? (
                         <CustomChartFilters
                             available={data?.filter ?? []}

@@ -2,25 +2,46 @@ import {Item} from "@/components/ui/item";
 import * as React from "react";
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {InfoIcon} from "lucide-react";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
+import {FilterIcon, InfoIcon} from "lucide-react";
 
 type ChartItemProps = {
     footer: string
     children: React.ReactNode
     action: React.ReactNode
     filter?: React.ReactNode
+    hasActiveFilters?: boolean
     isFullscreen?: boolean
     onClose?: () => void
 };
 
-export function CustomChartContainer({action, filter, children, footer, isFullscreen, onClose}: ChartItemProps) {
+export function CustomChartContainer({action, filter, hasActiveFilters, children, footer, isFullscreen, onClose}: ChartItemProps) {
     return (
         <Item variant="default" className={`flex flex-col flex-nowrap bg-accent p-0 gap-0 ${isFullscreen ? "h-full" : "h-140"}`}>
 
             <div className="w-full flex h-[48px] gap-2 p-2  items-center">
                 <div className={"flex grow gap-1"}>
-                    {filter && <>{filter}</>}
-
+                    {filter && (
+                        <Popover>
+                            <PopoverTrigger
+                                render={
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="cursor-pointer"
+                                        aria-invalid={hasActiveFilters}
+                                    >
+                                        <FilterIcon/>
+                                    </Button>
+                                }
+                            />
+                            <PopoverContent align="start" className="w-auto">
+                                <div className="flex flex-col gap-2">
+                                    {filter}
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    )}
                 </div>
                 <div className={"flex "}>
                     {action && <>{action}</>}

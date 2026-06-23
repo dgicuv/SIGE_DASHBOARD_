@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 export type FilterAccessor<T> = {
     get: (row: T) => string;
     sort?: (a: string, b: string) => number;
+    /** Adds a synthetic "Todos" option that matches every row, for fields with no real catch-all row in the data. */
+    allowAll?: boolean;
 };
 
 export function useChartFilters<T>(rows: T[], accessors: Record<string, FilterAccessor<T>>) {
@@ -12,6 +14,7 @@ export function useChartFilters<T>(rows: T[], accessors: Record<string, FilterAc
         const result: Record<string, string[]> = {};
         for (const [key, accessor] of Object.entries(accessors)) {
             const values = Array.from(new Set(rows.map(accessor.get)));
+            if (accessor.allowAll && !values.includes("Todos")) values.push("Todos");
             result[key] = accessor.sort ? values.sort(accessor.sort) : values.sort();
         }
         return result;
@@ -32,10 +35,17 @@ export function useChartFilters<T>(rows: T[], accessors: Record<string, FilterAc
 
     const filteredRows = useMemo(
         () => rows.filter((row) =>
-            Object.entries(accessors).every(([key, accessor]) => accessor.get(row) === selectedValues[key])
+            Object.entries(accessors).every(([key, accessor]) =>
+                (accessor.allowAll && selectedValues[key] === "Todos") || accessor.get(row) === selectedValues[key]
+            )
         ),
         [rows, accessors, selectedValues],
     );
 
-    return { availableValues, selectedValues, setFilter, filteredRows };
+    const hasActiveFilters = useMemo(
+        () => Object.keys(accessors).some((key) => selectedValues[key] !== (availableValues[key]?.[0] ?? "")),
+        [accessors, availableValues, selectedValues],
+    );
+
+    return { availableValues, selectedValues, setFilter, filteredRows, hasActiveFilters };
 }
