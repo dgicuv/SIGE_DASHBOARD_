@@ -12,7 +12,8 @@ public class MatriculaFormalController(
     GetEstadisticaMatriculaHandler estadisticaHandler,
     GetDiscapacidadPorAreaAcademicaHandler discapacidadHandler,
     GetHablantesLenguaIndigenaHandler hablantesLenguaIndigenaHandler,
-    GetMatriculaPorProgramaEducativoHandler matriculaPorProgramaEducativoHandler) : ControllerBase
+    GetMatriculaPorProgramaEducativoHandler matriculaPorProgramaEducativoHandler,
+    GetMovilidadPorNivelEducativoHandler movilidadPorNivelEducativoHandler) : ControllerBase
 {
     [HttpGet("graficas/estadistica")]
     public async Task<IActionResult> GetEstadistica([FromQuery] int? idRegion, [FromQuery] int? idDependencia) =>
@@ -74,6 +75,25 @@ public class MatriculaFormalController(
                 new { key = "modalidad", header = "Modalidad" },
             },
             categoryLabel = "Programa Educativo",
+            data
+        });
+    }
+    
+    
+    [HttpGet("graficas/movilidad-por-nivel-educativo")]
+    public async Task<IActionResult> GetMovilidadPorNivelEducativo(
+        [FromQuery] int? idRegion,
+        [FromQuery] int? idDependencia)
+    {
+        var data = await movilidadPorNivelEducativoHandler.HandleAsync(idRegion, idDependencia);
+        return Ok(new
+        {
+            title = "Movilidad por nivel educativo",
+            description = "Distribución de matrícula con movilidad hacia adentro y hacia afuera por nivel educativo",
+            info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
+            filter = new[] { "years", "sex", "nivelEducativo" },
+            columns = Array.Empty<object>(),
+            categoryLabel = "Nivel Educativo",
             data
         });
     }

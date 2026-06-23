@@ -241,6 +241,28 @@ export default function MatriculaFormalPage() {
                     />
                 </div>
 
+
+                <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
+                    <CustomPieChart
+                        queryKey={["dashboard", "movilidad-por-nivel-educativo", selectedRegionId, selectedDependenciaId]}
+                        queryFn={({signal}) => {
+                            const params = new URLSearchParams();
+                            if (selectedRegionId !== null) params.set("idRegion", String(selectedRegionId));
+                            if (selectedDependenciaId !== null) params.set("idDependencia", String(selectedDependenciaId));
+                            const query = params.size > 0 ? `?${params}` : "";
+                            return apiFetch(`/api/v1/matriculaformal/graficas/movilidad-por-nivel-educativo${query}`, {signal})
+                                .then((r) => r.json())
+                                .then((raw) => mapPieDataField(raw, "groupBy"));
+                        }}
+                        selectedRegion={isRegionSelected ? region : undefined}
+                        selectedDependencia={isDependenciaSelected ? dependencia : undefined}
+                        colorTheme={"barman"}
+                        allowedModesDefault={["data", "graph"]}
+                        allowedModesRegion={["data"]}
+                        allowedModesDependencia={["data"]}
+                    />
+                </div>
+
                 {/*<div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">*/}
                 {/*    <CustomChart*/}
                 {/*        queryKey={["dashboard", "personal2", region]}*/}

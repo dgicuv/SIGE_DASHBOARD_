@@ -17,6 +17,8 @@ type UsePieChartParams = {
     subtitle?: string;
     selectedSex?: string;
     selectedYear?: string;
+    selectedNivelEducativo?: string;
+    selectedModalidad?: string;
     selectedRegion?: string;
     selectedDependencia?: string;
 };
@@ -32,6 +34,8 @@ export function usePieChart({
                                 subtitle,
                                 selectedSex,
                                 selectedYear,
+                                selectedNivelEducativo,
+                                selectedModalidad,
                                 selectedRegion,
                                 selectedDependencia,
                             }: UsePieChartParams) {
@@ -72,10 +76,17 @@ export function usePieChart({
     );
 
     const subtext = useMemo(
-        () => [`Total: ${total.toLocaleString()}`, subtitle, `Sexo: ${selectedGenero}`, `Año: ${selectedAnio}`]
+        () => [
+            `Total: ${total.toLocaleString()}`,
+            subtitle,
+            `Sexo: ${selectedGenero}`,
+            `Año: ${selectedAnio}`,
+            selectedNivelEducativo && `Nivel Educativo: ${selectedNivelEducativo}`,
+            selectedModalidad && `Modalidad: ${selectedModalidad}`,
+        ]
             .filter(Boolean)
             .join(" · "),
-        [total, subtitle, selectedGenero, selectedAnio],
+        [total, subtitle, selectedGenero, selectedAnio, selectedNivelEducativo, selectedModalidad],
     );
 
     const option = useMemo<EChartsOption>(

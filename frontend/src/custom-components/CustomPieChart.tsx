@@ -131,11 +131,13 @@ export function CustomPieChart({
         () => [
             `Total: ${total.toLocaleString()}`,
             selectedValues.sex && `Sexo: ${selectedValues.sex}`,
-            selectedValues.years && `Año: ${selectedValues.years}`
+            selectedValues.years && `Año: ${selectedValues.years}`,
+            selectedValues.nivelEducativo && `Nivel Educativo: ${selectedValues.nivelEducativo}`,
+            selectedValues.modalidad && `Modalidad: ${selectedValues.modalidad}`,
         ]
             .filter(Boolean)
             .join(" · "),
-        [total, selectedValues.sex, selectedValues.years],
+        [total, selectedValues.sex, selectedValues.years, selectedValues.nivelEducativo, selectedValues.modalidad],
     );
 
     const {containerRef, downloadImage} = usePieChart({
@@ -147,6 +149,8 @@ export function CustomPieChart({
         formatValue,
         selectedSex: selectedValues.sex,
         selectedYear: selectedValues.years,
+        selectedNivelEducativo: selectedValues.nivelEducativo,
+        selectedModalidad: selectedValues.modalidad,
         selectedRegion,
         selectedDependencia,
     });
@@ -221,6 +225,8 @@ export function CustomPieChart({
                         values={values}
                         extraColumns={extraColumns}
                         formatValue={formatValue}
+                        selectedRegion={selectedRegion}
+                        selectedDependencia={selectedDependencia}
                     />
                 )}
             </CustomChartContainer>

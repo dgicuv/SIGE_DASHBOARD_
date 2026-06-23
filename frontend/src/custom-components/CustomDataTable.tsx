@@ -56,6 +56,8 @@ type DataTableProps = {
     extraColumns?: readonly ExtraColumn[];
     valueFormat?: ValueFormat;
     formatValue?: FormatValuesMode;
+    selectedRegion?: string;
+    selectedDependencia?: string;
 };
 
 export function CustomDataTable({
@@ -67,6 +69,8 @@ export function CustomDataTable({
                                     extraColumns = [],
                                     valueFormat = "number",
                                     formatValue = "numeric",
+                                    selectedRegion,
+                                    selectedDependencia,
                                 }: DataTableProps) {
     const [globalFilter, setGlobalFilter] = useState("");
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -120,7 +124,18 @@ export function CustomDataTable({
     });
 
     function exportData(format: "csv" | "xls" | "xlsx") {
-        const headerRows = [[title], ...(subtext ? [[subtext], []] : [])];
+        const locationLine = [
+            selectedRegion && `Región: ${selectedRegion}`,
+            selectedDependencia && `Dependencia: ${selectedDependencia}`,
+        ]
+            .filter(Boolean)
+            .join(" · ");
+        const headerRows = [
+            [title],
+            ...(subtext ? [[subtext]] : []),
+            ...(locationLine ? [[locationLine]] : []),
+            ...(subtext || locationLine ? [[]] : []),
+        ];
         const dataRows = [
             [categoryLabel, ...extraColumns.map((c) => c.header), "Valor"],
             ...data.map((r) => [r.category, ...extraColumns.map((c) => r[c.key]), r.value]),

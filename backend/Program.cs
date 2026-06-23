@@ -27,6 +27,7 @@ builder.Services.AddScoped<GetEstadisticaMatriculaHandler>();
 builder.Services.AddScoped<GetDiscapacidadPorAreaAcademicaHandler>();
 builder.Services.AddScoped<GetHablantesLenguaIndigenaHandler>();
 builder.Services.AddScoped<GetMatriculaPorProgramaEducativoHandler>();
+builder.Services.AddScoped<GetMovilidadPorNivelEducativoHandler>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -188,4 +188,42 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
             .ThenBy(dto => dto.Year)
             .ThenBy(dto => dto.Sex);
     }
+
+    public async Task<IEnumerable<MovilidadPorNivelEducativoDto>> GetMovilidadPorNivelEducativoAsync(int? idRegion, int? idDependencia)
+    {
+        var query = db.Matriculas
+            .Where(m => m.ProgramaEducativo!.IsActive)
+            .AsQueryable();
+
+        if (idRegion.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion.Value);
+
+        if (idDependencia.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
+
+        var grupos = await query
+            .GroupBy(m => new
+            {
+                m.ProgramaEducativo!.Nivel!.Name,
+                m.Anio
+            })
+            .Select(g => new
+            {
+                g.Key.Name,
+                g.Key.Anio,
+                HaciaAdentro = g.Sum(m => m.MovilidadHaciaAdentroHombres + m.MovilidadHaciaAdentroMujeres),
+                HaciaAfuera = g.Sum(m => m.MovilidadHaciaAfueraHombres + m.MovilidadHaciaAfueraMujeres)
+            })
+            .ToListAsync();
+
+        return grupos
+            .SelectMany(g => new[]
+            {
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia adentro", g.HaciaAdentro),
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia afuera", g.HaciaAfuera),
+            })
+            .OrderBy(dto => dto.GroupBy)
+            .ThenBy(dto => dto.Year)
+            .ThenBy(dto => dto.Tipo);
+    }
 }
