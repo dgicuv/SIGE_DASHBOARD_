@@ -211,19 +211,26 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
             {
                 g.Key.Name,
                 g.Key.Anio,
-                HaciaAdentro = g.Sum(m => m.MovilidadHaciaAdentroHombres + m.MovilidadHaciaAdentroMujeres),
-                HaciaAfuera = g.Sum(m => m.MovilidadHaciaAfueraHombres + m.MovilidadHaciaAfueraMujeres)
+                HaciaAdentroHombres = g.Sum(m => m.MovilidadHaciaAdentroHombres),
+                HaciaAdentroMujeres = g.Sum(m => m.MovilidadHaciaAdentroMujeres),
+                HaciaAfueraHombres = g.Sum(m => m.MovilidadHaciaAfueraHombres),
+                HaciaAfueraMujeres = g.Sum(m => m.MovilidadHaciaAfueraMujeres)
             })
             .ToListAsync();
 
         return grupos
             .SelectMany(g => new[]
             {
-                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia adentro", g.HaciaAdentro),
-                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia afuera", g.HaciaAfuera),
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia adentro", "Hombre", g.HaciaAdentroHombres, g.Name),
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia adentro", "Mujer", g.HaciaAdentroMujeres, g.Name),
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia adentro", "Todos", g.HaciaAdentroHombres + g.HaciaAdentroMujeres, g.Name),
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia afuera", "Hombre", g.HaciaAfueraHombres, g.Name),
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia afuera", "Mujer", g.HaciaAfueraMujeres, g.Name),
+                new MovilidadPorNivelEducativoDto(g.Name, g.Anio, "Movilidad hacia afuera", "Todos", g.HaciaAfueraHombres + g.HaciaAfueraMujeres, g.Name),
             })
             .OrderBy(dto => dto.GroupBy)
             .ThenBy(dto => dto.Year)
-            .ThenBy(dto => dto.Tipo);
+            .ThenBy(dto => dto.Tipo)
+            .ThenBy(dto => dto.Sex);
     }
 }

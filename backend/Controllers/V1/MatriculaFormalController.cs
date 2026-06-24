@@ -92,7 +92,10 @@ public class MatriculaFormalController(
             description = "Distribución de matrícula con movilidad hacia adentro y hacia afuera por nivel educativo",
             info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
             filter = new[] { "years", "sex", "nivelEducativo" },
-            columns = Array.Empty<object>(),
+            columns = new[]
+            {
+                new { key = "nivelEducativo", header = "Nivel Educativo" },
+            },
             categoryLabel = "Nivel Educativo",
             data
         });

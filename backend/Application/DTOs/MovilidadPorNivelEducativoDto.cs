@@ -4,5 +4,7 @@ public record MovilidadPorNivelEducativoDto(
     string GroupBy,
     int Year,
     string Tipo,
-    int Total
+    string Sex,
+    int Total,
+    string NivelEducativo
 );

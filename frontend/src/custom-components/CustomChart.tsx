@@ -8,7 +8,7 @@ import {CustomModalChart} from "@custom/CustomModalChart.tsx";
 import {type ChartMode, CustomChartMenu, type FormatValuesMode} from "@custom/CustomChartMenu.tsx";
 import {CustomChartFilters} from "@/custom-components-filter/CustomChartFilters.tsx";
 import {type FilterAccessor, useChartFilters} from "@/hooks/useChartFilters";
-import {usePieChart} from "@/hooks/usePieChart.ts";
+import {type ChartOrientation, type ChartType, useChart} from "@/hooks/useChart.ts";
 import {type ChartColorThemeId, chartColorThemes} from "@/config/chartConfig";
 
 export type PieDatum = {
@@ -40,6 +40,14 @@ export type CustomChartPieProps = {
     selectedRegion?: string;
     selectedDependencia?: string;
     colorTheme?: ChartColorThemeId;
+    /** Tipo de serie ECharts a renderizar. Default "pie". */
+    chartType?: ChartType;
+    /** Orientación de ejes para chartType "bar"/"line". Default "horizontal". */
+    orientation?: ChartOrientation;
+    /** Campo de PieDatum que separa la fila en múltiples series (p.ej. "tipo"), dejando `name` solo como categoría del eje. No aplica a chartType="pie". */
+    seriesField?: string;
+    /** Encabezado de columna a usar en modo tabla para cada valor de `seriesField`. Default: el propio valor. */
+    seriesFieldLabel?: (seriesName: string) => string;
     /** Modos permitidos cuando hay una dependencia seleccionada (tiene prioridad sobre `allowedModesRegion`). */
     allowedModesDependencia?: ChartMode[];
     /** Modos permitidos cuando hay una región seleccionada y ninguna dependencia. */
@@ -48,12 +56,16 @@ export type CustomChartPieProps = {
     allowedModesDefault?: ChartMode[];
 };
 
-export function CustomPieChart({
+export function CustomChart({
                                    queryKey,
                                    queryFn,
                                    selectedRegion,
                                    selectedDependencia,
                                    colorTheme = "default",
+                                   chartType = "pie",
+                                   orientation = "horizontal",
+                                   seriesField,
+                                   seriesFieldLabel = (s) => s,
                                    allowedModesDependencia = ["graph", "data"],
                                    allowedModesRegion = ["graph", "data"],
                                    allowedModesDefault = ["graph", "data"],
@@ -114,16 +126,70 @@ export function CustomPieChart({
         [filteredRows],
     );
 
-    const categories = sortedRows.map((d) => d.name);
-    const values = sortedRows.map((d) => d.total);
+    // Cuando hay seriesField, varias filas comparten el mismo `name` (una por valor de seriesField,
+    // p.ej. "Movilidad hacia adentro" / "hacia afuera"). Las categorías se deduplican preservando el
+    // orden de aparición, en vez de ordenarse por total individual (que no aplica a una categoría con
+    // múltiples series).
+    const categories = useMemo(() => {
+        if (!seriesField) return sortedRows.map((d) => d.name);
+        const seen = new Set<string>();
+        const names: string[] = [];
+        for (const row of filteredRows) {
+            if (!seen.has(row.name)) {
+                seen.add(row.name);
+                names.push(row.name);
+            }
+        }
+        return names;
+    }, [seriesField, filteredRows, sortedRows]);
+
+    const values = useMemo(
+        () => seriesField
+            ? categories.map((name) =>
+                filteredRows.filter((d) => d.name === name).reduce((sum, d) => sum + d.total, 0))
+            : sortedRows.map((d) => d.total),
+        [seriesField, categories, filteredRows, sortedRows],
+    );
+
+    const multiSeries = useMemo(() => {
+        if (!seriesField) return undefined;
+        const seen = new Set<string>();
+        const seriesNames: string[] = [];
+        for (const row of filteredRows) {
+            const key = String(row[seriesField] ?? "");
+            if (!seen.has(key)) {
+                seen.add(key);
+                seriesNames.push(key);
+            }
+        }
+        return seriesNames.map((seriesName) => ({
+            name: seriesName,
+            values: categories.map((name) =>
+                filteredRows.find((d) => d.name === name && String(d[seriesField] ?? "") === seriesName)?.total ?? 0),
+        }));
+    }, [seriesField, filteredRows, categories]);
+
+    // Fila representativa por categoría, usada para alinear las `columns` declaradas por el backend
+    // (descriptivas, no las series) cuando hay seriesField y por ende varias filas por categoría.
+    const representativeRows = useMemo(
+        () => seriesField ? categories.map((name) => filteredRows.find((d) => d.name === name)!) : sortedRows,
+        [seriesField, categories, filteredRows, sortedRows],
+    );
 
     const extraColumns = useMemo(
-        () => (data?.columns ?? []).map((col) => ({
-            key: col.key,
-            header: col.header,
-            values: sortedRows.map((d) => String(d[col.key] ?? "")),
-        })),
-        [data?.columns, sortedRows],
+        () => [
+            ...(multiSeries ?? []).map((s) => ({
+                key: `series:${s.name}`,
+                header: seriesFieldLabel(s.name),
+                values: s.values.map((v) => v.toLocaleString()),
+            })),
+            ...(data?.columns ?? []).map((col) => ({
+                key: col.key,
+                header: col.header,
+                values: representativeRows.map((d) => String(d[col.key] ?? "")),
+            })),
+        ],
+        [multiSeries, seriesFieldLabel, data?.columns, representativeRows],
     );
 
     const total = useMemo(() => values.reduce((sum, v) => sum + v, 0), [values]);
@@ -140,13 +206,16 @@ export function CustomPieChart({
         [total, selectedValues.sex, selectedValues.years, selectedValues.nivelEducativo, selectedValues.modalidad],
     );
 
-    const {containerRef, downloadImage} = usePieChart({
+    const {containerRef, downloadImage} = useChart({
         title,
         info,
         categories,
         values,
         colors: [...chartColorThemes[colorTheme]],
         formatValue,
+        chartType,
+        orientation,
+        series: multiSeries,
         selectedSex: selectedValues.sex,
         selectedYear: selectedValues.years,
         selectedNivelEducativo: selectedValues.nivelEducativo,
