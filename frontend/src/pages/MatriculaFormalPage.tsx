@@ -262,18 +262,7 @@ export default function MatriculaFormalPage() {
                         allowedModesDependencia={["data"]}
                     />
                 </div>
-
-                {/*<div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">*/}
-                {/*    <CustomChart*/}
-                {/*        queryKey={["dashboard", "personal2", region]}*/}
-                {/*        queryFn={({signal}) =>*/}
-                {/*            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())*/}
-                {/*        }*/}
-                {/*        colors={["#C8796F"]}*/}
-                {/*        orientation="vertical"*/}
-                {/*    />*/}
-                {/*</div>*/}
-            </div>
+           </div>
         </div>
     );
 }
