@@ -175,7 +175,7 @@ function Layout() {
         <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <AppSidebar navMain={visibleNavMain} navBottom={navBottom} />
             <SidebarInset>
-                <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
+                <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2nd px-4 bg-stone-300">
                     <SidebarTrigger className="-ml-1" />
                     <Breadcrumb>
                         <BreadcrumbList>

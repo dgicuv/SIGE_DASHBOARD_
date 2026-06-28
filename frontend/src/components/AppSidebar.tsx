@@ -75,19 +75,19 @@ export function AppSidebar({ navMain, navBottom }: Props) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" className="cursor-default">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-background text-black text-xs font-bold shrink-0">
                    UV
                 </div>
                 <div className="flex flex-col leading-none">
                   <span className="font-heading font-semibold text-lg flex items-center gap-1.5">
                     SIGE
                     {ENV_BADGE[import.meta.env.MODE] && (
-                      <Badge className="h-4 px-1.5 text-xs bg-transparent text-red-600 border-red-600">
+                      <Badge className="h-4 px-1.5 text-xs bg-yellow-400 text-black">
                         {ENV_BADGE[import.meta.env.MODE]}
                       </Badge>
                     )}
                   </span>
-                  <span className="text-xs text-muted-foreground">Gerencial</span>
+                  <span className="text-xs text-muted-background">Gerencial</span>
                 </div>
               </SidebarMenuButton>
             </SidebarMenuItem>

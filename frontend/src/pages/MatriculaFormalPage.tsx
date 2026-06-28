@@ -98,11 +98,11 @@ export default function MatriculaFormalPage() {
 
   return (
     <div className="flex flex-col gap-0">
-      <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-background border-b shadow-md">
+      <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-stone-200 border-b border-primary/30 shadow-md">
         <Combobox value={region} onValueChange={handleRegionChange}>
           <ComboboxInput
             placeholder={TODAS_REGIONES}
-            className="w-full"
+            className="w-full bg-white"
             readOnly
             aria-invalid={region !== TODAS_REGIONES}
           />

@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-table";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {fileTimestamp} from "@/lib/utils";
+import {cn, fileTimestamp} from "@/lib/utils";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu";
 import {
     AlertDialog,
@@ -188,7 +188,7 @@ export function CustomDataTable({
                             {headerGroup.headers.map((header) => (
                                 <th
                                     key={header.id}
-                                    className="sticky top-0 bg-background px-4 py-2 font-medium text-muted-foreground text-left last:text-right"
+                                    className={cn("sticky top-0 bg-background px-4 py-2 font-medium text-muted-foreground text-left last:text-right", header.column.id === "category" && "w-full")}
                                 >
                                     {header.isPlaceholder ? null : (
                                         <button
@@ -196,7 +196,7 @@ export function CustomDataTable({
                                             onClick={header.column.getToggleSortingHandler()}
                                             className="inline-flex items-center gap-1 cursor-pointer hover:text-foreground"
                                         >
-                                            {String(header.column.columnDef.header)}
+                                            <span className="whitespace-nowrap">{String(header.column.columnDef.header)}</span>
                                             {header.column.getIsSorted() === "asc" && <ArrowUp className="size-3"/>}
                                             {header.column.getIsSorted() === "desc" && <ArrowDown className="size-3"/>}
                                             {!header.column.getIsSorted() && <ArrowUpDown className="size-3 opacity-40"/>}
@@ -213,9 +213,14 @@ export function CustomDataTable({
                             {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
-                                    className="px-4 py-2 last:text-right"
+                                    className={cn("px-4 py-2 max-w-0 last:text-right", cell.column.id === "category" && "w-full")}
                                 >
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    <div
+                                        className="truncate"
+                                        title={cell.column.id === "category" ? String(cell.getValue()) : undefined}
+                                    >
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </div>
                                 </td>
                             ))}
                         </tr>
