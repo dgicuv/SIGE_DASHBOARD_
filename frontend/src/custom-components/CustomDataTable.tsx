@@ -213,7 +213,7 @@ export function CustomDataTable({
                             {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
-                                    className={cn("px-4 py-2 max-w-0 last:text-right", cell.column.id === "category" && "w-full")}
+                                    className={cn("px-4 py-1.5 max-w-0 text-xs last:text-right", cell.column.id === "category" && "w-full")}
                                 >
                                     <div
                                         className="truncate"

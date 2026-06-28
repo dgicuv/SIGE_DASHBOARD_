@@ -1,6 +1,4 @@
-import { CustomChart } from "@custom/CustomChart";
 import { useAuth } from "@/contexts/auth";
-import { apiFetch } from "@/lib/api";
 
 export default function GeneralPage() {
   const { isAuthenticated } = useAuth();

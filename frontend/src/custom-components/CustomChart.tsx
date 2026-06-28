@@ -248,6 +248,7 @@ export function CustomChart({
                         <>
                             <CustomChartMenu
                                 setIsFullscreen={() => setIsFullscreen(true)}
+                                isFullscreen={isFullscreen}
                                 title={title}
                                 mode={effectiveMode}
                                 allowedModes={allowedModes}

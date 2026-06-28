@@ -75,7 +75,7 @@ export function AppSidebar({ navMain, navBottom }: Props) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" className="cursor-default">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-background text-black text-xs font-bold shrink-0">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-background text-black text-xs font-bold shrink-0 dark:bg-white">
                    UV
                 </div>
                 <div className="flex flex-col leading-none">
@@ -145,8 +145,8 @@ export function AppSidebar({ navMain, navBottom }: Props) {
             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger render={<SidebarMenuButton size="lg" />}>
-                  <Avatar className="size-8 rounded-lg shrink-0">
-                    <AvatarFallback className="rounded-lg text-xs">
+                  <Avatar className="size-8 rounded-lg shrink-0 bg-background">
+                    <AvatarFallback className="rounded-lg text-xs dark:bg-white text-black">
                       RP
                     </AvatarFallback>
                   </Avatar>
@@ -154,7 +154,7 @@ export function AppSidebar({ navMain, navBottom }: Props) {
                     <span className="truncate text-sm font-medium">
                       Rulo Pimentel
                     </span>
-                    <span className="truncate text-xs text-muted-foreground">
+                    <span className="truncate text-xs text-white">
                       rulopimentel@gmail.com
                     </span>
                   </div>

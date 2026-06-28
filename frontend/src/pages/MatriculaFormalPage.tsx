@@ -98,11 +98,11 @@ export default function MatriculaFormalPage() {
 
   return (
     <div className="flex flex-col gap-0">
-      <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-stone-200 border-b border-primary/30 shadow-md">
+      <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-stone-200 dark:bg-stone-600 border-b border-primary/30 shadow-md">
         <Combobox value={region} onValueChange={handleRegionChange}>
           <ComboboxInput
             placeholder={TODAS_REGIONES}
-            className="w-full bg-white"
+            className="w-full bg-white dark:bg-black"
             readOnly
             aria-invalid={region !== TODAS_REGIONES}
           />
@@ -159,11 +159,17 @@ export default function MatriculaFormalPage() {
                   key={d.id}
                   value={`${d.clave} - ${d.name} - ${d.regionName}`}
                 >
-                  <div className="flex flex-col min-w-0">
-                    <span className="truncate">
+                  <div className="flex items-center gap-2 min-w-0 w-full">
+                    <span
+                      className="truncate flex-1"
+                      title={`${d.clave} - ${d.name}`}
+                    >
                       {d.clave} - {d.name}
                     </span>
-                    <span className="truncate text-xs text-muted-foreground">
+                    <span
+                      className="text-xs text-muted-foreground shrink-0"
+                      title={d.regionName}
+                    >
                       {d.regionName}
                     </span>
                   </div>
@@ -408,7 +414,6 @@ export default function MatriculaFormalPage() {
             allowedModesDependencia={["data", "graph"]}
           />
         </div>
-
       </div>
     </div>
   );
