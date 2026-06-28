@@ -122,6 +122,7 @@ export function CustomChartMenu({
                     <DropdownMenuGroup>
                         <DropdownMenuItem
                             onClick={setIsFullscreen}
+                            disabled={isFullscreen}
                             className={"cursor-pointer"}
                         >
                             Ver en pantalla completa

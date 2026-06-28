@@ -396,6 +396,7 @@ export default function MatriculaFormalPage() {
                 .then((raw) => mapPieDataField(raw, "groupBy"));
             }}
             chartType="bar"
+            orientation="vertical"
             seriesField="tipo"
             selectedRegion={isRegionSelected ? region : undefined}
             selectedDependencia={

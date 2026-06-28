@@ -33,6 +33,8 @@ export function useChartFilters<T>(rows: T[], accessors: Record<string, FilterAc
         setSelected((prev) => ({ ...prev, [key]: value }));
     };
 
+    const clearFilters = () => setSelected({});
+
     const filteredRows = useMemo(
         () => rows.filter((row) =>
             Object.entries(accessors).every(([key, accessor]) =>
@@ -47,5 +49,5 @@ export function useChartFilters<T>(rows: T[], accessors: Record<string, FilterAc
         [accessors, availableValues, selectedValues],
     );
 
-    return { availableValues, selectedValues, setFilter, filteredRows, hasActiveFilters };
+    return { availableValues, selectedValues, setFilter, clearFilters, filteredRows, hasActiveFilters };
 }

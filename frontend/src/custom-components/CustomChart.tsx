@@ -119,7 +119,7 @@ export function CustomChart({
         [allFilterAccessors, data?.filter],
     );
 
-    const {availableValues, selectedValues, setFilter, filteredRows, hasActiveFilters} = useChartFilters(rows, filterAccessors);
+    const {availableValues, selectedValues, setFilter, clearFilters, filteredRows, hasActiveFilters} = useChartFilters(rows, filterAccessors);
 
     const sortedRows = useMemo(
         () => [...filteredRows].sort((a, b) => b.total - a.total),
@@ -231,6 +231,7 @@ export function CustomChart({
                 onClose={() => setIsFullscreen(false)}
                 footer={hasData ? info : ""}
                 hasActiveFilters={hasActiveFilters}
+                onClearFilters={clearFilters}
                 filter={hasData ? (
                         <CustomChartFilters
                             available={data?.filter ?? []}

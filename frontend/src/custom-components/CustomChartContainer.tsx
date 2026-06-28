@@ -3,7 +3,7 @@ import * as React from "react";
 import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
-import {FilterIcon, InfoIcon} from "lucide-react";
+import {FilterIcon, FilterXIcon, InfoIcon} from "lucide-react";
 
 type ChartItemProps = {
     footer: string
@@ -11,11 +11,12 @@ type ChartItemProps = {
     action: React.ReactNode
     filter?: React.ReactNode
     hasActiveFilters?: boolean
+    onClearFilters?: () => void
     isFullscreen?: boolean
     onClose?: () => void
 };
 
-export function CustomChartContainer({action, filter, hasActiveFilters, children, footer, isFullscreen, onClose}: ChartItemProps) {
+export function CustomChartContainer({action, filter, hasActiveFilters, onClearFilters, children, footer, isFullscreen, onClose}: ChartItemProps) {
     return (
         <Item variant="default" className={`flex flex-col flex-nowrap bg-accent p-0 gap-0 ${isFullscreen ? "h-full" : "h-140"}`}>
 
@@ -41,6 +42,23 @@ export function CustomChartContainer({action, filter, hasActiveFilters, children
                                 </div>
                             </PopoverContent>
                         </Popover>
+                    )}
+                    {hasActiveFilters && onClearFilters && (
+                        <Tooltip>
+                            <TooltipTrigger
+                                render={
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="cursor-pointer"
+                                        onClick={onClearFilters}
+                                    >
+                                        <FilterXIcon/>
+                                    </Button>
+                                }
+                            />
+                            <TooltipContent>Limpiar filtros</TooltipContent>
+                        </Tooltip>
                     )}
                 </div>
                 <div className={"flex "}>
