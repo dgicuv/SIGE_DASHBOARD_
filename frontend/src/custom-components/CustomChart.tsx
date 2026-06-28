@@ -225,7 +225,7 @@ export function CustomChart({
     });
 
     return (
-        <CustomModalChart isFullscreen={isFullscreen} onOpenChange={setIsFullscreen} title={title}>
+        <CustomModalChart isFullscreen={isFullscreen} onOpenChange={setIsFullscreen} title={title} selectedRegion={selectedRegion} selectedDependencia={selectedDependencia}>
             <CustomChartContainer
                 isFullscreen={isFullscreen}
                 onClose={() => setIsFullscreen(false)}

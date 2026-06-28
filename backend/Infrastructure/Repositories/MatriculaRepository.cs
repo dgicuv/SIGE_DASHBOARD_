@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace SIGE.Dashboard;
 
-public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
+public class MatriculaRepository(AppDbContext db, IOptions<SigeConfiguration> config) : IMatriculaRepository
 {
+    private readonly int _anio = config.Value.Anio;
+
     public async Task<IEnumerable<Matricula>> GetAllAsync() =>
         await db.Matriculas
             .Include(m => m.ProgramaEducativo)
+            .Where(m => m.Anio == _anio)
             .OrderBy(m => m.ProgramaEducativo!.Name)
             .ToListAsync();
 
@@ -15,6 +19,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
         var query = db.Matriculas
             .Include(m => m.ProgramaEducativo)
                 .ThenInclude(p => p!.Dependencia)
+            .Where(m => m.Anio == _anio)
             .AsQueryable();
 
         if (idRegion.HasValue)
@@ -33,6 +38,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
                 .ThenInclude(p => p!.Dependencia)
             .Include(m => m.ProgramaEducativo)
                 .ThenInclude(p => p!.AreaAcademica)
+            .Where(m => m.Anio >= _anio - 4 && m.Anio <= _anio)
             .AsQueryable();
 
         if (idRegion.HasValue)
@@ -73,7 +79,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
     private async Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaPorDependenciaAsync(int idRegion, int? idDependencia)
     {
         var query = db.Matriculas
-            .Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion)
+            .Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion && m.Anio >= _anio - 4 && m.Anio <= _anio)
             .AsQueryable();
 
         if (idDependencia.HasValue)
@@ -114,7 +120,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
 
     private async Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaPorRegionAsync(int? idDependencia)
     {
-        var query = db.Matriculas.AsQueryable();
+        var query = db.Matriculas.Where(m => m.Anio >= _anio - 4 && m.Anio <= _anio).AsQueryable();
 
         if (idDependencia.HasValue)
             query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
@@ -155,6 +161,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
                 .ThenInclude(p => p!.Nivel)
             .Include(m => m.ProgramaEducativo)
                 .ThenInclude(p => p!.Modalidad)
+            .Where(m => m.Anio >= _anio - 4 && m.Anio <= _anio)
             .AsQueryable();
 
         if (idRegion.HasValue)
@@ -192,7 +199,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
     public async Task<IEnumerable<MovilidadPorNivelEducativoDto>> GetMovilidadPorNivelEducativoAsync(int? idRegion, int? idDependencia)
     {
         var query = db.Matriculas
-            .Where(m => m.ProgramaEducativo!.IsActive)
+            .Where(m => m.ProgramaEducativo!.IsActive && m.Anio >= _anio - 4 && m.Anio <= _anio)
             .AsQueryable();
 
         if (idRegion.HasValue)
@@ -237,7 +244,7 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
     public async Task<IEnumerable<TrayectoriaAcademicaPorNivelEducativoDto>> GetTrayectoriaAcademicaPorNivelEducativoAsync(int? idRegion, int? idDependencia)
     {
         var query = db.Matriculas
-            .Where(m => m.ProgramaEducativo!.IsActive)
+            .Where(m => m.ProgramaEducativo!.IsActive && m.Anio >= _anio - 4 && m.Anio <= _anio)
             .AsQueryable();
 
         if (idRegion.HasValue)
