@@ -232,6 +232,8 @@ export function CustomChart({
                 footer={hasData ? info : ""}
                 hasActiveFilters={hasActiveFilters}
                 onClearFilters={clearFilters}
+                selectedRegion={selectedRegion}
+                selectedDependencia={selectedDependencia}
                 filter={hasData ? (
                         <CustomChartFilters
                             available={data?.filter ?? []}

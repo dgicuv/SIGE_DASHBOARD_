@@ -11,12 +11,10 @@ type CustomModalChartProps = {
     children: ReactNode;
 };
 
-export function CustomModalChart({isFullscreen, onOpenChange, title, selectedRegion, selectedDependencia, children}: CustomModalChartProps) {
+export function CustomModalChart({isFullscreen, onOpenChange, children}: CustomModalChartProps) {
     if (!isFullscreen) {
         return <>{children}</>;
     }
-
-    const subtitle = [selectedRegion, selectedDependencia].filter(Boolean).join(" · ");
 
     return (
         <Dialog open={isFullscreen} onOpenChange={onOpenChange}>
@@ -26,12 +24,6 @@ export function CustomModalChart({isFullscreen, onOpenChange, title, selectedReg
                 )}
                 showCloseButton={false}
             >
-                {subtitle && (
-                    <div className="flex flex-col px-6 pt-4 pb-2 border-b shrink-0">
-                        <span className="text-sm font-semibold">{title}</span>
-                        <span className="text-xs text-muted-foreground">{subtitle}</span>
-                    </div>
-                )}
                 <div className="flex-1 min-h-0 overflow-auto p-0">
                     {children}
                 </div>
