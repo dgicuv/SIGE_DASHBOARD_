@@ -34,6 +34,7 @@ type ChartMenuProps = {
     formatValue: FormatValuesMode
     onDownload: () => void;
     setIsFullscreen: () => void;
+    isFullscreen?: boolean;
     setFormatValue: (format: FormatValuesMode) => void;
 };
 
@@ -46,7 +47,8 @@ export function CustomChartMenu({
                                     setFormatValue,
                                     onReset,
                                     onDownload,
-                                    setIsFullscreen
+                                    setIsFullscreen,
+                                    isFullscreen = false,
                                 }: ChartMenuProps) {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);

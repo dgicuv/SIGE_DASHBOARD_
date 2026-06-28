@@ -280,7 +280,7 @@ export default function MatriculaFormalPage() {
               selectedRegionId,
               selectedDependenciaId,
             ]}
-            queryFn={({ signal }) => {
+            queryFn={async ({ signal }) => {
               const params = new URLSearchParams();
               if (selectedRegionId !== null)
                 params.set("idRegion", String(selectedRegionId));
@@ -313,7 +313,7 @@ export default function MatriculaFormalPage() {
               selectedRegionId,
               selectedDependenciaId,
             ]}
-            queryFn={({ signal }) => {
+            queryFn={async ({ signal }) => {
               const params = new URLSearchParams();
               if (selectedRegionId !== null)
                 params.set("idRegion", String(selectedRegionId));
@@ -346,7 +346,7 @@ export default function MatriculaFormalPage() {
               selectedRegionId,
               selectedDependenciaId,
             ]}
-            queryFn={({ signal }) => {
+            queryFn={async ({ signal }) => {
               const params = new URLSearchParams();
               if (selectedRegionId !== null)
                 params.set("idRegion", String(selectedRegionId));
@@ -372,6 +372,42 @@ export default function MatriculaFormalPage() {
             allowedModesDependencia={["data", "graph"]}
           />
         </div>
+
+        <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
+          <CustomChart
+            queryKey={[
+              "dashboard",
+              "trayectoria-academica-por-nivel-educativo",
+              selectedRegionId,
+              selectedDependenciaId,
+            ]}
+            queryFn={async ({ signal }) => {
+              const params = new URLSearchParams();
+              if (selectedRegionId !== null)
+                params.set("idRegion", String(selectedRegionId));
+              if (selectedDependenciaId !== null)
+                params.set("idDependencia", String(selectedDependenciaId));
+              const query = params.size > 0 ? `?${params}` : "";
+              return apiFetch(
+                `/api/v1/matriculaformal/graficas/trayectoria-academica-por-nivel-educativo${query}`,
+                { signal },
+              )
+                .then((r) => r.json())
+                .then((raw) => mapPieDataField(raw, "groupBy"));
+            }}
+            chartType="bar"
+            seriesField="tipo"
+            selectedRegion={isRegionSelected ? region : undefined}
+            selectedDependencia={
+              isDependenciaSelected ? dependencia : undefined
+            }
+            colorTheme={"barman"}
+            allowedModesDefault={["data", "graph"]}
+            allowedModesRegion={["data", "graph"]}
+            allowedModesDependencia={["data", "graph"]}
+          />
+        </div>
+
       </div>
     </div>
   );

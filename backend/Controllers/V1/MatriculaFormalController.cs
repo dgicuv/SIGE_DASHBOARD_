@@ -13,7 +13,8 @@ public class MatriculaFormalController(
     GetDiscapacidadPorAreaAcademicaHandler discapacidadHandler,
     GetHablantesLenguaIndigenaHandler hablantesLenguaIndigenaHandler,
     GetMatriculaPorProgramaEducativoHandler matriculaPorProgramaEducativoHandler,
-    GetMovilidadPorNivelEducativoHandler movilidadPorNivelEducativoHandler) : ControllerBase
+    GetMovilidadPorNivelEducativoHandler movilidadPorNivelEducativoHandler,
+    GetTrayectoriaAcademicaPorNivelEducativoHandler trayectoriaAcademicaHandler) : ControllerBase
 {
     [HttpGet("graficas/estadistica")]
     public async Task<IActionResult> GetEstadistica([FromQuery] int? idRegion, [FromQuery] int? idDependencia) =>
@@ -90,6 +91,27 @@ public class MatriculaFormalController(
         {
             title = "Movilidad por nivel educativo",
             description = "Distribución de matrícula con movilidad hacia adentro y hacia afuera por nivel educativo",
+            info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
+            filter = new[] { "years", "sex", "nivelEducativo" },
+            columns = new[]
+            {
+                new { key = "nivelEducativo", header = "Nivel Educativo" },
+            },
+            categoryLabel = "Nivel Educativo",
+            data
+        });
+    }
+
+    [HttpGet("graficas/trayectoria-academica-por-nivel-educativo")]
+    public async Task<IActionResult> GetTrayectoriaAcademicaPorNivelEducativo(
+        [FromQuery] int? idRegion,
+        [FromQuery] int? idDependencia)
+    {
+        var data = await trayectoriaAcademicaHandler.HandleAsync(idRegion, idDependencia);
+        return Ok(new
+        {
+            title = "Trayectoria académica por nivel educativo",
+            description = "Ingreso, egreso, titulados y permanencia de matrícula por nivel educativo",
             info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
             filter = new[] { "years", "sex", "nivelEducativo" },
             columns = new[]

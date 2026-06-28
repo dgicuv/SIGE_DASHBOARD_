@@ -233,4 +233,77 @@ public class MatriculaRepository(AppDbContext db) : IMatriculaRepository
             .ThenBy(dto => dto.Tipo)
             .ThenBy(dto => dto.Sex);
     }
+
+    public async Task<IEnumerable<TrayectoriaAcademicaPorNivelEducativoDto>> GetTrayectoriaAcademicaPorNivelEducativoAsync(int? idRegion, int? idDependencia)
+    {
+        var query = db.Matriculas
+            .Where(m => m.ProgramaEducativo!.IsActive)
+            .AsQueryable();
+
+        if (idRegion.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.Dependencia!.FkIdRegion == idRegion.Value);
+
+        if (idDependencia.HasValue)
+            query = query.Where(m => m.ProgramaEducativo!.FkIdDependencia == idDependencia.Value);
+
+        var rows = await query
+            .GroupBy(m => new
+            {
+                NivelId = m.ProgramaEducativo!.FkIdNivel,
+                m.ProgramaEducativo!.Nivel!.Name,
+                m.Anio
+            })
+            .Select(g => new
+            {
+                g.Key.NivelId,
+                g.Key.Name,
+                g.Key.Anio,
+                IngresoHombres = g.Sum(m => m.PrimerIngresoHombres),
+                IngresoMujeres = g.Sum(m => m.PrimerIngresoMujeres),
+                EgresoHombres = g.Sum(m => m.EgresadosHombres),
+                EgresoMujeres = g.Sum(m => m.EgresadosMujeres),
+                TituladosHombres = g.Sum(m => m.TituladosHombres),
+                TituladosMujeres = g.Sum(m => m.TituladosMujeres),
+                PermanenciaHombres = g.Sum(m => m.MatriculaHombres),
+                PermanenciaMujeres = g.Sum(m => m.MatriculaMujeres),
+            })
+            .ToListAsync();
+
+        static int CanonicalId(int id) => id switch { 0 or 1 => 1, 2 or 25 or 28 => 2, _ => id };
+
+        return rows
+            .GroupBy(g => new { CanonicalId = CanonicalId(g.NivelId), g.Anio })
+            .SelectMany(cg =>
+            {
+                var name = cg.FirstOrDefault(g => g.NivelId == cg.Key.CanonicalId)?.Name ?? cg.First().Name;
+                var anio = cg.Key.Anio;
+                var ingresoH = cg.Sum(g => g.IngresoHombres);
+                var ingresoM = cg.Sum(g => g.IngresoMujeres);
+                var egresoH = cg.Sum(g => g.EgresoHombres);
+                var egresoM = cg.Sum(g => g.EgresoMujeres);
+                var tituladosH = cg.Sum(g => g.TituladosHombres);
+                var tituladosM = cg.Sum(g => g.TituladosMujeres);
+                var permanenciaH = cg.Sum(g => g.PermanenciaHombres);
+                var permanenciaM = cg.Sum(g => g.PermanenciaMujeres);
+                return new[]
+                {
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Ingreso", "Hombre", ingresoH, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Ingreso", "Mujer", ingresoM, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Ingreso", "Todos", ingresoH + ingresoM, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Egreso", "Hombre", egresoH, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Egreso", "Mujer", egresoM, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Egreso", "Todos", egresoH + egresoM, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Titulados", "Hombre", tituladosH, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Titulados", "Mujer", tituladosM, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Titulados", "Todos", tituladosH + tituladosM, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Permanencia", "Hombre", permanenciaH, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Permanencia", "Mujer", permanenciaM, name),
+                    new TrayectoriaAcademicaPorNivelEducativoDto(name, anio, "Permanencia", "Todos", permanenciaH + permanenciaM, name),
+                };
+            })
+            .OrderBy(dto => dto.GroupBy)
+            .ThenBy(dto => dto.Year)
+            .ThenBy(dto => dto.Tipo)
+            .ThenBy(dto => dto.Sex);
+    }
 }

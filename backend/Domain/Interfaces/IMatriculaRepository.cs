@@ -8,4 +8,5 @@ public interface IMatriculaRepository
     Task<IEnumerable<HablantesLenguaIndigenaDto>> GetHablantesLenguaIndigenaAsync(int? idRegion, int? idDependencia);
     Task<IEnumerable<MatriculaPorProgramaEducativoDto>> GetMatriculaPorProgramaEducativoAsync(int? idRegion, int? idDependencia);
     Task<IEnumerable<MovilidadPorNivelEducativoDto>> GetMovilidadPorNivelEducativoAsync(int? idRegion, int? idDependencia);
+    Task<IEnumerable<TrayectoriaAcademicaPorNivelEducativoDto>> GetTrayectoriaAcademicaPorNivelEducativoAsync(int? idRegion, int? idDependencia);
 }
