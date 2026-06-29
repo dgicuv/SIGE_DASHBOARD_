@@ -119,6 +119,12 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+@keyframes pattern-flow {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(56px, 56px); }
+}
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

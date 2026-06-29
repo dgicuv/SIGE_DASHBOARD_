@@ -10,9 +10,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm, type FieldErrors } from "react-hook-form";
 import { toast } from "sonner";
-import imagen from "../assets/imagen.svg";
 import { Badge } from "@/components/ui/badge";
-import { CircleDot } from "lucide-react";
+import {
+  ChartPie,
+  ChartColumn,
+  ChartSpline,
+  ChartLine,
+  ChartBar,
+  CircleDot,
+} from "lucide-react";
+
+const PATTERN_ICONS = [ChartPie, ChartColumn, ChartSpline, ChartLine, ChartBar];
+const PATTERN_ITEMS = Array.from({ length: 110 }, (_, i) => ({
+  Icon: PATTERN_ICONS[i % PATTERN_ICONS.length],
+}));
 
 const ENV_BADGE: Record<string, string> = {
   development: "Development",
@@ -93,12 +104,25 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
               </Field>
             </FieldGroup>
           </form>
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src={imagen}
-              alt="SIGE"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
+          <div className="relative hidden md:flex overflow-hidden bg-primary">
+            <div
+              className="absolute content-start pointer-events-none"
+              style={{
+                inset: "-15%",
+                display: "grid",
+                gridTemplateColumns: "repeat(7, 40px)",
+                gap: "16px",
+                animation: "pattern-flow 4s linear infinite",
+              }}
+            >
+              {PATTERN_ITEMS.map(({ Icon }, i) => (
+                <Icon
+                  key={i}
+                  size={40}
+                  className="text-white opacity-15 -rotate-30"
+                />
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
