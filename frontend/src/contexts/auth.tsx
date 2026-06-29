@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
 
 type AuthContextType = {
@@ -17,6 +18,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [username, setUsername] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const wasAuthenticatedRef = useRef(false);
+
+  useEffect(() => {
+    wasAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    function handleUnauthorized() {
+      if (!wasAuthenticatedRef.current) return;
+      toast.error("Tu sesión ha expirado. Por favor inicia sesión nuevamente.", {
+        id: "auth-expired",
+      });
+      setIsAuthenticated(false);
+      setUsername(null);
+      setRoles([]);
+    }
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, []);
 
   useEffect(() => {
     apiFetch("/api/v1/auth/me")

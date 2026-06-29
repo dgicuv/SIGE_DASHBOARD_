@@ -117,6 +117,7 @@ app.UseCors("Frontend");
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseMiddleware<SlidingJwtMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 
