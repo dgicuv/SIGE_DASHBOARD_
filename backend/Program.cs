@@ -26,6 +26,7 @@ builder.Services.AddScoped<GetActiveRegionesHandler>();
 builder.Services.AddScoped<GetActiveDependenciasHandler>();
 builder.Services.AddScoped<GetActiveProgramasEducativosHandler>();
 builder.Services.AddScoped<GetEstadisticaProgramasEducativosHandler>();
+builder.Services.AddScoped<GetListadoProgramasHandler>();
 builder.Services.AddScoped<GetDistribucionPorAreaAcademicaHandler>();
 builder.Services.AddScoped<GetDistribucionPorRegionHandler>();
 builder.Services.AddScoped<GetDistribucionPorModalidadHandler>();

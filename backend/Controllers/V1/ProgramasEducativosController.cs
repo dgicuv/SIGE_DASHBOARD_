@@ -11,6 +11,7 @@ namespace SIGE.Dashboard;
 public class ProgramasEducativosController(
     GetActiveProgramasEducativosHandler handler,
     GetEstadisticaProgramasEducativosHandler estadisticaHandler,
+    GetListadoProgramasHandler listadoHandler,
     GetDistribucionPorAreaAcademicaHandler distribucionAreaAcademicaHandler,
     GetDistribucionPorRegionHandler distribucionRegionHandler,
     GetDistribucionPorModalidadHandler distribucionModalidadHandler,
@@ -18,6 +19,28 @@ public class ProgramasEducativosController(
 {
     [HttpGet]
     public async Task<IActionResult> GetAll() => Ok(await handler.HandleAsync());
+
+    [HttpGet("graficas/listado")]
+    public async Task<IActionResult> GetListado([FromQuery] int? idRegion, [FromQuery] int? idDependencia)
+    {
+        var data = await listadoHandler.HandleAsync(idRegion, idDependencia);
+        return Ok(new
+        {
+            title = "Listado de programas educativos",
+            description = "Programas educativos activos por región y dependencia",
+            info = "Fecha de corte escolar 2025 - 2026. Fuente de Información: Estadística 911",
+            filter = new[] { "years" },
+            columns = new[]
+            {
+                new { key = "matricula",     header = "Matrícula" },
+                new { key = "areaAcademica", header = "Área Académica" },
+                new { key = "dependencia",   header = "Dependencia" },
+                new { key = "region",        header = "Región" },
+            },
+            categoryLabel = "Programa Educativo",
+            data
+        });
+    }
 
     [HttpGet("graficas/estadistica")]
     public async Task<IActionResult> GetEstadistica([FromQuery] int? idRegion, [FromQuery] int? idDependencia) =>

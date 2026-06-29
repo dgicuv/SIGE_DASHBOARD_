@@ -54,6 +54,8 @@ export type CustomChartPieProps = {
     allowedModesRegion?: ChartMode[];
     /** Modos permitidos cuando no hay ni región ni dependencia seleccionada. */
     allowedModesDefault?: ChartMode[];
+    /** Oculta la columna "Valor" en el modo tabla. */
+    hideValueColumn?: boolean;
 };
 
 export function CustomChart({
@@ -69,6 +71,7 @@ export function CustomChart({
                                    allowedModesDependencia = ["graph", "data"],
                                    allowedModesRegion = ["graph", "data"],
                                    allowedModesDefault = ["graph", "data"],
+                                   hideValueColumn = false,
                                }: CustomChartPieProps) {
     const {data, isFetching, isError, refetch} = useQuery({queryKey, queryFn});
 
@@ -300,6 +303,7 @@ export function CustomChart({
                         formatValue={formatValue}
                         selectedRegion={selectedRegion}
                         selectedDependencia={selectedDependencia}
+                        hideValueColumn={hideValueColumn}
                     />
                 )}
             </CustomChartContainer>

@@ -58,6 +58,7 @@ type DataTableProps = {
     formatValue?: FormatValuesMode;
     selectedRegion?: string;
     selectedDependencia?: string;
+    hideValueColumn?: boolean;
 };
 
 export function CustomDataTable({
@@ -71,6 +72,7 @@ export function CustomDataTable({
                                     formatValue = "numeric",
                                     selectedRegion,
                                     selectedDependencia,
+                                    hideValueColumn = false,
                                 }: DataTableProps) {
     const [globalFilter, setGlobalFilter] = useState("");
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -100,15 +102,15 @@ export function CustomDataTable({
                     filterFn: fuzzyFilter,
                 })
             ),
-            columnHelper.accessor("value", {
+            ...(!hideValueColumn ? [columnHelper.accessor("value", {
                 header: "Valor",
                 cell: (info) => formatValue === "percent"
                     ? `${total ? ((Number(info.getValue()) / total) * 100).toFixed(1) : "0"}%`
                     : fmt.format(Number(info.getValue())),
                 enableColumnFilter: false,
-            }),
+            })] : []),
         ],
-        [fmt, formatValue, total, extraColumns, categoryLabel],
+        [fmt, formatValue, total, extraColumns, categoryLabel, hideValueColumn],
     );
 
     const table = useReactTable({

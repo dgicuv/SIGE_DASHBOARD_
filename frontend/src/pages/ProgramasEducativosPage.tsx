@@ -73,6 +73,23 @@ export default function ProgramasEducativosPage() {
         />
       </div>
 
+      <div className="w-full p-2 px-4">
+        <CustomChart
+          queryKey={["programas-educativos", "listado", selectedRegionId, selectedDependenciaId]}
+          queryFn={({ signal }) =>
+            apiFetch(`/api/v1/programaseducativos/graficas/listado${buildQuery(selectedRegionId, selectedDependenciaId)}`, { signal })
+              .then((r) => r.json())
+              .then((raw) => mapPieDataField(raw, "groupBy"))
+          }
+          selectedRegion={selectedRegionName}
+          selectedDependencia={selectedDependenciaName}
+          allowedModesDefault={["data"]}
+          allowedModesRegion={["data"]}
+          allowedModesDependencia={["data"]}
+          hideValueColumn
+        />
+      </div>
+
       <div className="flex flex-wrap content-start gap-0 p-2">
         <div className="w-full lg:w-1/2 p-2 min-w-0">
           <CustomChart

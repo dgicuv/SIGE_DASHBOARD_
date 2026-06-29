@@ -37,6 +37,29 @@ public class ProgramasEducativosRepository(AppDbContext db, IOptions<SigeConfigu
             .OrderBy(p => p.Name)
             .ToListAsync();
 
+    public async Task<IEnumerable<ProgramaListadoDto>> GetListadoAsync(int? idRegion, int? idDependencia)
+    {
+        var programas = await GetActiveWithStudentsAsync(idRegion, idDependencia);
+        var ids = programas.Select(p => p.Id).ToList();
+
+        var totales = await db.Matriculas
+            .Where(m => ids.Contains(m.IdProgramaEducativo))
+            .ToDictionaryAsync(m => m.IdProgramaEducativo, m => m.MatriculaHombres + m.MatriculaMujeres);
+
+        return programas
+            .Select(p => new ProgramaListadoDto(
+                GroupBy: $"{p.Clave} - {p.Name}",
+                Year: p.Anio,
+                Total: 1,
+                Matricula: totales.GetValueOrDefault(p.Id, 0),
+                AreaAcademica: p.AreaAcademica?.Name ?? "",
+                Dependencia: p.Dependencia?.Name ?? "",
+                Region: p.Dependencia?.Region?.Name ?? ""
+            ))
+            .OrderBy(d => d.GroupBy)
+            .ThenBy(d => d.Year);
+    }
+
     public async Task<IEnumerable<DistribucionProgramasDto>> GetDistribucionPorAreaAcademicaAsync(int? idRegion, int? idDependencia)
     {
         var programas = await GetActiveWithStudentsAsync(idRegion, idDependencia);
