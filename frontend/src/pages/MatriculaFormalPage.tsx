@@ -1,16 +1,5 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
-import { useAppData } from "@/contexts/appData";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxTrigger,
-} from "@/components/ui/combobox";
-import { cn } from "@/lib/utils";
 import { StatItem } from "@/components/StatItem";
 import {
   AccessibilityIcon,
@@ -22,9 +11,8 @@ import {
 } from "lucide-react";
 import { CustomChart } from "@custom/CustomChart.tsx";
 import { mapPieDataField } from "@/lib/pieChartUtils.ts";
-
-const TODAS_REGIONES = "Todas las Regiones";
-const TODAS_DEPENDENCIAS = "Todas las Dependencias";
+import { useRegionDependenciaFilter } from "@/hooks/useRegionDependenciaFilter";
+import { RegionDependenciaFilter } from "@custom/RegionDependenciaFilter";
 
 type Estadistica = {
   totalMatricula: number;
@@ -36,36 +24,13 @@ type Estadistica = {
 };
 
 export default function MatriculaFormalPage() {
-  const [region, setRegion] = useState<string>(TODAS_REGIONES);
-  const [dependencia, setDependencia] = useState<string>(TODAS_DEPENDENCIAS);
-  const [busqueda, setBusqueda] = useState<string>("");
-  const { regiones, dependencias } = useAppData();
-
-  const selectedRegionId = regiones.find((r) => r.name === region)?.id ?? null;
-
-  const dependenciasFiltradas = (
-    selectedRegionId === null
-      ? dependencias
-      : dependencias.filter((d) => d.regionId === selectedRegionId)
-  ).toSorted((a, b) => a.clave.localeCompare(b.clave));
-
-  const dependenciasMostradas = busqueda.trim()
-    ? dependenciasFiltradas.filter((d) =>
-        `${d.clave} ${d.name} ${d.regionName}`
-          .toLowerCase()
-          .includes(busqueda.toLowerCase()),
-      )
-    : dependenciasFiltradas;
-
-  const selectedDependenciaId =
-    dependencia === TODAS_DEPENDENCIAS
-      ? null
-      : (dependencias.find(
-          (d) => `${d.clave} - ${d.name} - ${d.regionName}` === dependencia,
-        )?.id ?? null);
-
-  const isDependenciaSelected = selectedDependenciaId !== null;
-  const isRegionSelected = selectedRegionId !== null;
+  const filter = useRegionDependenciaFilter();
+  const {
+    selectedRegionId,
+    selectedDependenciaId,
+    selectedRegionName,
+    selectedDependenciaName,
+  } = filter;
 
   const { data: estadistica, isLoading: estadisticaLoading } =
     useQuery<Estadistica>({
@@ -89,96 +54,9 @@ export default function MatriculaFormalPage() {
       },
     });
 
-  function handleRegionChange(val: string | null) {
-    if (!val) return;
-    setRegion(val);
-    setDependencia(TODAS_DEPENDENCIAS);
-    setBusqueda("");
-  }
-
   return (
     <div className="flex flex-col gap-0">
-      <div className="sticky top-12 z-10 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[30%_70%] gap-2 px-4 pt-4 pb-4 bg-stone-200 dark:bg-stone-600 border-b border-primary/30 shadow-md">
-        <Combobox value={region} onValueChange={handleRegionChange}>
-          <ComboboxInput
-            placeholder={TODAS_REGIONES}
-            className="w-full bg-white dark:bg-black"
-            readOnly
-            aria-invalid={region !== TODAS_REGIONES}
-          />
-          <ComboboxContent>
-            <ComboboxList>
-              <ComboboxItem value={TODAS_REGIONES}>
-                {TODAS_REGIONES}
-              </ComboboxItem>
-              {regiones.map((r) => (
-                <ComboboxItem key={r.id} value={r.name}>
-                  {r.name}
-                </ComboboxItem>
-              ))}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-
-        <Combobox
-          value={dependencia}
-          onValueChange={(val) => {
-            setDependencia(val ?? TODAS_DEPENDENCIAS);
-            setBusqueda("");
-          }}
-        >
-          <ComboboxTrigger
-            aria-invalid={dependencia !== TODAS_DEPENDENCIAS}
-            className="flex h-9 w-full items-center justify-between rounded-2xl border border-input bg-background px-3 shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40"
-          >
-            <span
-              className={cn(
-                "truncate text-sm",
-                dependencia === TODAS_DEPENDENCIAS && "text-muted-foreground",
-              )}
-            >
-              {dependencia}
-            </span>
-          </ComboboxTrigger>
-          <ComboboxContent>
-            <div className="p-1 pb-0">
-              <input
-                placeholder="Buscar dependencia..."
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                onKeyDown={(e) => e.stopPropagation()}
-                className="flex h-8 w-full rounded-xl border border-input/30 bg-input/50 px-2 text-sm outline-none placeholder:text-muted-foreground"
-              />
-            </div>
-            <ComboboxList>
-              <ComboboxItem value={TODAS_DEPENDENCIAS}>
-                {TODAS_DEPENDENCIAS}
-              </ComboboxItem>
-              {dependenciasMostradas.map((d) => (
-                <ComboboxItem
-                  key={d.id}
-                  value={`${d.clave} - ${d.name} - ${d.regionName}`}
-                >
-                  <div className="flex items-center gap-2 min-w-0 w-full">
-                    <span
-                      className="truncate flex-1"
-                      title={`${d.clave} - ${d.name}`}
-                    >
-                      {d.clave} - {d.name}
-                    </span>
-                    <span
-                      className="text-xs text-muted-foreground shrink-0"
-                      title={d.regionName}
-                    >
-                      {d.regionName}
-                    </span>
-                  </div>
-                </ComboboxItem>
-              ))}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-      </div>
+      <RegionDependenciaFilter {...filter} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 p-4">
         <StatItem
@@ -226,25 +104,6 @@ export default function MatriculaFormalPage() {
       </div>
 
       <div className="flex flex-wrap content-start gap-0 p-2">
-        {/*<div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">*/}
-        {/*    <CustomChart*/}
-        {/*        queryKey={["dashboard", "entidades", region]}*/}
-        {/*        queryFn={({signal}) =>*/}
-        {/*            apiFetch("/api/v1/entidadesdependencias/entidades", {signal}).then((r) => r.json())*/}
-        {/*        }*/}
-        {/*        colors={["#70AB6D"]}*/}
-        {/*    />*/}
-        {/*</div>*/}
-        {/*<div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">*/}
-        {/*    <CustomChart*/}
-        {/*        queryKey={["dashboard", "personal", region]}*/}
-        {/*        queryFn={({signal}) =>*/}
-        {/*            apiFetch("/api/v1/entidadesdependencias/personal", {signal}).then((r) => r.json())*/}
-        {/*        }*/}
-        {/*        colors={["#C8796F"]}*/}
-        {/*        orientation="vertical"*/}
-        {/*    />*/}
-        {/*</div>*/}
         <div className="w-full lg:w-1/2 xl:w-1/2 p-2 min-w-0">
           <CustomChart
             queryKey={[
@@ -267,10 +126,8 @@ export default function MatriculaFormalPage() {
                 .then((r) => r.json())
                 .then((raw) => mapPieDataField(raw, "groupBy"));
             }}
-            selectedRegion={isRegionSelected ? region : undefined}
-            selectedDependencia={
-              isDependenciaSelected ? dependencia : undefined
-            }
+            selectedRegion={selectedRegionName}
+            selectedDependencia={selectedDependenciaName}
             colorTheme={"kanagawa"}
             allowedModesDefault={["graph", "data"]}
             allowedModesRegion={["graph", "data"]}
@@ -300,10 +157,8 @@ export default function MatriculaFormalPage() {
                 .then((r) => r.json())
                 .then((raw) => mapPieDataField(raw, "groupBy"));
             }}
-            selectedRegion={isRegionSelected ? region : undefined}
-            selectedDependencia={
-              isDependenciaSelected ? dependencia : undefined
-            }
+            selectedRegion={selectedRegionName}
+            selectedDependencia={selectedDependenciaName}
             colorTheme={"kanagawa"}
             allowedModesDefault={["data"]}
             allowedModesRegion={["data"]}
@@ -333,10 +188,8 @@ export default function MatriculaFormalPage() {
                 .then((r) => r.json())
                 .then((raw) => mapPieDataField(raw, "groupBy"));
             }}
-            selectedRegion={isRegionSelected ? region : undefined}
-            selectedDependencia={
-              isDependenciaSelected ? dependencia : undefined
-            }
+            selectedRegion={selectedRegionName}
+            selectedDependencia={selectedDependenciaName}
             colorTheme={"barman"}
             allowedModesDefault={["data", "graph"]}
             allowedModesRegion={["data"]}
@@ -368,10 +221,8 @@ export default function MatriculaFormalPage() {
             }}
             chartType="bar"
             seriesField="tipo"
-            selectedRegion={isRegionSelected ? region : undefined}
-            selectedDependencia={
-              isDependenciaSelected ? dependencia : undefined
-            }
+            selectedRegion={selectedRegionName}
+            selectedDependencia={selectedDependenciaName}
             colorTheme={"barman"}
             allowedModesDefault={["data", "graph"]}
             allowedModesRegion={["data", "graph"]}
@@ -404,10 +255,8 @@ export default function MatriculaFormalPage() {
             chartType="bar"
             orientation="vertical"
             seriesField="tipo"
-            selectedRegion={isRegionSelected ? region : undefined}
-            selectedDependencia={
-              isDependenciaSelected ? dependencia : undefined
-            }
+            selectedRegion={selectedRegionName}
+            selectedDependencia={selectedDependenciaName}
             colorTheme={"barman"}
             allowedModesDefault={["data", "graph"]}
             allowedModesRegion={["data", "graph"]}
