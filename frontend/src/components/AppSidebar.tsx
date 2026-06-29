@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 
 const ENV_BADGE: Record<string, string> = {
   development: "Development",
-  training:    "Training",
+  training: "Training",
 };
 import {
   AlertDialog,
@@ -58,7 +58,8 @@ function itemPath(key: string) {
 
 export function AppSidebar({ navMain, navBottom }: Props) {
   const location = useLocation();
-  const currentKey = location.pathname === "/" ? "general" : location.pathname.slice(1);
+  const currentKey =
+    location.pathname === "/" ? "general" : location.pathname.slice(1);
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -75,11 +76,11 @@ export function AppSidebar({ navMain, navBottom }: Props) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" className="cursor-default">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-background text-black text-xs font-bold shrink-0 dark:bg-white">
-                   UV
+                <div className="flex aspect-square  items-center justify-center  shrink-0">
+                  <img src="/favicon_inverse.svg" alt="UV" className="size-8" />
                 </div>
                 <div className="flex flex-col leading-none">
-                  <span className="font-heading font-semibold text-lg flex items-center gap-1.5">
+                  <span className="font-heading font-semibold text-lg flex items-center gap-2">
                     SIGE
                     {ENV_BADGE[import.meta.env.MODE] && (
                       <Badge className="h-4 px-1.5 text-xs bg-yellow-400 text-black">
@@ -87,7 +88,9 @@ export function AppSidebar({ navMain, navBottom }: Props) {
                       </Badge>
                     )}
                   </span>
-                  <span className="text-xs text-muted-background">Gerencial</span>
+                  <span className="text-xs text-muted-background">
+                    Gerencial
+                  </span>
                 </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
